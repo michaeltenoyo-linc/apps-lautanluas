@@ -1,6 +1,6 @@
-# ltl_bulk
+# Lautan Luas Bulk
 
-A new Flutter project.
+This is an HP application program for data management and data recording on PT. Lautan Luas Tbk. This program was built as a system prototype for future use. Built using the Flutter framework.
 
 ## Getting Started
 
