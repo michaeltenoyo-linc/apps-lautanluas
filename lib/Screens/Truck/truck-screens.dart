@@ -1,0 +1,1 @@
+export 'truck.dart';

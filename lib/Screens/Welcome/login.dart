@@ -23,7 +23,7 @@ class Login extends StatelessWidget {
             Flexible(
               child: Center(
                 child: Text(
-                  'LautanLuas',
+                  'Lautan Luas',
                   style: kTextLight6Xl,
                 ),
               ),
@@ -68,7 +68,8 @@ class Login extends StatelessWidget {
                   size: size,
                   text: 'Login',
                   color: kColorsBlue700,
-                  onClick: () {},
+                  onClick: () =>
+                      Navigator.pushNamed(context, '/home/dashboard'),
                 ),
                 SizedBox(
                   height: 10,
