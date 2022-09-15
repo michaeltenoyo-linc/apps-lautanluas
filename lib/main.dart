@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:ltl_bulk/Screens/Global/global-screens.dart';
 import 'package:ltl_bulk/Screens/Welcome/widgets/widgets.dart';
 
 //Pallete
@@ -40,6 +41,7 @@ class MyApp extends StatelessWidget {
         '/': (context) => Login(),
         'ForgotPassword': (context) => ForgotPassword(),
         'SignUp': (context) => SignUp(),
+        '/home/dashboard': (context) => Dashboard(),
       },
     );
   }
