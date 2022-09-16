@@ -5,7 +5,7 @@ import 'package:ltl_bulk/Screens/Global/widgets/widgets.dart';
 import 'package:ltl_bulk/Shared/colors.dart';
 import 'package:ltl_bulk/Shared/fonts.dart';
 
-class DashboardAppBar extends StatelessWidget implements PreferredSizeWidget {
+class DashboardAppBar extends StatefulWidget implements PreferredSizeWidget {
   const DashboardAppBar({
     Key? key,
     required this.size,
@@ -18,20 +18,25 @@ class DashboardAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
 
   @override
-  Size get preferredSize => Size.fromHeight(size.height * 0.1);
+  State<DashboardAppBar> createState() => _DashboardAppBarState();
 
+  @override
+  Size get preferredSize => Size.fromHeight(size.height * 0.1);
+}
+
+class _DashboardAppBarState extends State<DashboardAppBar> {
   @override
   Widget build(BuildContext context) {
     return AppBar(
       elevation: 0,
-      toolbarHeight: size.height * 0.1,
+      toolbarHeight: widget.size.height * 0.1,
       backgroundColor: Colors.transparent,
       leading: DrawerSidebarButton(
-        onClick: openDrawer,
+        onClick: widget.openDrawer,
         color: kLightColor,
       ),
       title: Text(
-        this.title,
+        this.widget.title,
         style: kTextLight2Xl,
       ),
       centerTitle: true,
@@ -40,7 +45,7 @@ class DashboardAppBar extends StatelessWidget implements PreferredSizeWidget {
           child: Padding(
             padding: EdgeInsets.fromLTRB(0, 15.0, 10.0, 0),
             child: Container(
-              width: size.width * 0.3,
+              width: widget.size.width * 0.3,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
@@ -66,10 +71,34 @@ class DashboardAppBar extends StatelessWidget implements PreferredSizeWidget {
             icon: Icon(
               FontAwesomeIcons.user,
             ),
-            onPressed: () {},
+            onPressed: () {
+              openDialog();
+            },
           ),
         )
       ],
     );
   }
+
+  //Popup Button
+  Future openDialog() => showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text(
+            'Account!',
+            style: kTextDarkBold4Xl,
+          ),
+          content: Text(
+            'testing.account@gmail.com',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {},
+              child: Text(
+                'LOG OUT',
+              ),
+            )
+          ],
+        ),
+      );
 }
