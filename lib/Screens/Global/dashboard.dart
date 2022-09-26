@@ -21,6 +21,7 @@ class _DashboardState extends State<Dashboard> {
   late double yOffset;
   late double scaleFactor;
   late bool isDrawerOpen;
+  late bool isHomepage;
   DrawerItem item = DrawerItems.home;
 
   @override
@@ -45,6 +46,27 @@ class _DashboardState extends State<Dashboard> {
         isDrawerOpen = false;
       });
 
+  void navigation(path) => setState(() {
+        isHomepage = false;
+        switch (path) {
+          case 'truck':
+            this.item = DrawerItems.truck;
+            break;
+          case 'warehouse':
+            this.item = DrawerItems.warehouse;
+            break;
+          case 'consignee':
+            this.item = DrawerItems.consignee;
+            break;
+          case 'report':
+            this.item = DrawerItems.report;
+            break;
+          default:
+            isHomepage = true;
+            this.item = DrawerItems.home;
+        }
+      });
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -66,6 +88,7 @@ class _DashboardState extends State<Dashboard> {
                       Navigator.pop(context);
                       break;
                     default:
+                      isHomepage = item == DrawerItems.home ? true : false;
                       setState(() => this.item = item);
                       closeDrawer();
                   }
@@ -84,6 +107,9 @@ class _DashboardState extends State<Dashboard> {
       onWillPop: () async {
         if (isDrawerOpen) {
           closeDrawer();
+          return false;
+        } else if (!isHomepage) {
+          navigation('home');
           return false;
         } else {
           return true;
@@ -117,7 +143,10 @@ class _DashboardState extends State<Dashboard> {
         break;
       case DrawerItems.home:
       default:
-        return Homepage(openDrawer: openDrawer);
+        return Homepage(
+          openDrawer: openDrawer,
+          dashboardNavigation: navigation,
+        );
     }
   }
 }

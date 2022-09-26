@@ -68,8 +68,7 @@ class Login extends StatelessWidget {
                   size: size,
                   text: 'Login',
                   color: kColorsBlue700,
-                  onClick: () =>
-                      Navigator.pushNamed(context, '/home/dashboard'),
+                  onClick: () => Navigator.pushNamed(context, 'home/dashboard'),
                 ),
                 SizedBox(
                   height: 10,

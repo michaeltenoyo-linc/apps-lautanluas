@@ -2,15 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:ltl_bulk/Screens/Global/global-screens.dart';
-import 'package:ltl_bulk/Screens/Welcome/widgets/widgets.dart';
 
 //Pallete
 import 'package:ltl_bulk/Shared/fonts.dart';
 import 'package:ltl_bulk/shared/colors.dart';
 
-//Welcome Screen
+//Widgets
+import 'package:ltl_bulk/Screens/Welcome/widgets/widgets.dart';
+
+//Screens
 import 'package:ltl_bulk/Screens/Welcome/welcome-screens.dart';
+import 'package:ltl_bulk/Screens/Load/load-screens.dart';
+import 'package:ltl_bulk/Screens/Global/global-screens.dart';
 
 void main() {
   runApp(const MyApp());
@@ -28,7 +31,7 @@ class MyApp extends StatelessWidget {
     ]);
 
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Lautan Luas',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primaryColor: kPrimaryColor,
@@ -41,7 +44,8 @@ class MyApp extends StatelessWidget {
         '/': (context) => Login(),
         'ForgotPassword': (context) => ForgotPassword(),
         'SignUp': (context) => SignUp(),
-        '/home/dashboard': (context) => Dashboard(),
+        'home/dashboard': (context) => Dashboard(),
+        'load/create': (context) => CreateLoad(),
       },
     );
   }

@@ -12,9 +12,11 @@ class Homepage extends StatelessWidget {
   const Homepage({
     super.key,
     required this.openDrawer,
+    required this.dashboardNavigation,
   });
 
   final VoidCallback openDrawer;
+  final Function dashboardNavigation;
 
   @override
   Widget build(BuildContext context) {
@@ -61,25 +63,33 @@ class Homepage extends StatelessWidget {
                           size: size,
                           iconPath: 'assets/icons/homepage/home_truck.svg',
                           text: 'Truck',
-                          onTap: () {},
+                          onTap: () {
+                            this.dashboardNavigation('truck');
+                          },
                         ),
                         HomepageMenuBox(
                           size: size,
                           iconPath: 'assets/icons/homepage/home_warehouse.svg',
                           text: 'Warehouse',
-                          onTap: () {},
+                          onTap: () {
+                            this.dashboardNavigation('warehouse');
+                          },
                         ),
                         HomepageMenuBox(
                           size: size,
                           iconPath: 'assets/icons/homepage/home_consignee.svg',
                           text: 'Consignee',
-                          onTap: () {},
+                          onTap: () {
+                            this.dashboardNavigation('consignee');
+                          },
                         ),
                         HomepageMenuBox(
                           size: size,
                           iconPath: 'assets/icons/homepage/home_report.svg',
                           text: 'Report',
-                          onTap: () {},
+                          onTap: () {
+                            this.dashboardNavigation('report');
+                          },
                         ),
                       ],
                     ),
@@ -106,7 +116,9 @@ class Homepage extends StatelessWidget {
                         height: size.width * 0.15,
                         child: RawMaterialButton(
                           fillColor: kColorsBlue700,
-                          onPressed: () {},
+                          onPressed: () {
+                            Navigator.pushNamed(context, 'load/create');
+                          },
                           shape: CircleBorder(),
                           elevation: 0.0,
                           child: Icon(
@@ -123,36 +135,44 @@ class Homepage extends StatelessWidget {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          IconButton(
-                            onPressed: () {},
+                          HomepageFooterItem(
                             icon: Icon(
-                              FontAwesomeIcons.truck,
+                              FontAwesomeIcons.book,
                               size: size.width * 0.035,
+                              color: kDarkColor,
                             ),
+                            onTap: () {},
+                            text: "Shipments",
                           ),
-                          IconButton(
-                            onPressed: () {},
+                          HomepageFooterItem(
                             icon: Icon(
-                              FontAwesomeIcons.warehouse,
+                              FontAwesomeIcons.clock,
                               size: size.width * 0.035,
+                              color: kDarkColor,
                             ),
+                            onTap: () {},
+                            text: "Timeline",
                           ),
                           Container(
                             width: size.width * 0.2,
                           ),
-                          IconButton(
-                            onPressed: () {},
+                          HomepageFooterItem(
                             icon: Icon(
-                              FontAwesomeIcons.userTie,
+                              FontAwesomeIcons.braille,
                               size: size.width * 0.035,
+                              color: kDarkColor,
                             ),
+                            onTap: () {},
+                            text: "Stowage Plan",
                           ),
-                          IconButton(
-                            onPressed: () {},
+                          HomepageFooterItem(
                             icon: Icon(
-                              FontAwesomeIcons.chartColumn,
+                              FontAwesomeIcons.chartPie,
                               size: size.width * 0.035,
+                              color: kDarkColor,
                             ),
+                            onTap: () {},
+                            text: "Overview",
                           ),
                         ],
                       ),
@@ -163,6 +183,46 @@ class Homepage extends StatelessWidget {
             )
           ],
         ));
+  }
+}
+
+class HomepageFooterItem extends StatelessWidget {
+  const HomepageFooterItem({
+    Key? key,
+    required this.text,
+    required this.icon,
+    required this.onTap,
+  }) : super(key: key);
+
+  final String text;
+  final Icon icon;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.transparent,
+        elevation: 0.0,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: this.icon,
+          ),
+          Padding(
+            padding: const EdgeInsets.all(2.0),
+            child: Text(
+              this.text,
+              style: kTextDarkBoldXl,
+            ),
+          ),
+        ],
+      ),
+      onPressed: this.onTap,
+    );
   }
 }
 
