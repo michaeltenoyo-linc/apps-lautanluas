@@ -22,11 +22,13 @@ class CreateLoad extends StatefulWidget {
 
 class _CreateLoadState extends State<CreateLoad> {
   int currentStep = 0;
+  bool isCompleted = false;
 
   //Form Editing Controller
   final carrier = TextEditingController();
   final date = TextEditingController();
   final entryTime = TextEditingController();
+  final exitTime = TextEditingController();
   final nopol = TextEditingController();
   final warehouse = TextEditingController();
   final weight_empty = TextEditingController();
@@ -73,29 +75,7 @@ class _CreateLoadState extends State<CreateLoad> {
   void initState() {
     // TODO: implement initState
     super.initState();
-
-    //Form Init
-    date.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
-    entryTime.text = DateFormat('HH:mm:ss').format(DateTime.now());
-
-    //Init Shift and Time
-    if (isCurrentTimeBetween(
-        [TimeOfDay(hour: 8, minute: 0), TimeOfDay(hour: 15, minute: 59)])) {
-      this.shiftValue = itemsShift[0];
-    } else if (isCurrentTimeBetween(
-        [TimeOfDay(hour: 16, minute: 0), TimeOfDay(hour: 23, minute: 59)])) {
-      this.shiftValue = itemsShift[1];
-    } else {
-      this.shiftValue = itemsShift[2];
-    }
-
-    this.palkaValue = itemsPalka[0];
-    this.grabberValue = itemsGrabber[0];
-    this.craneValue = itemsCrane[0];
-
-    this.net_weight.text = 'Undefined';
-    this.weight_empty.text = '0';
-    this.weight_full.text = '0';
+    initValue();
   }
 
   @override
@@ -124,23 +104,79 @@ class _CreateLoadState extends State<CreateLoad> {
                     ),
                   ),
                   backgroundColor: Colors.transparent,
-                  body: Stepper(
-                    steps: getSteps(),
-                    type: StepperType.horizontal,
-                    currentStep: currentStep,
-                    onStepContinue: () {
-                      final isLastStep = currentStep == getSteps().length - 1;
-                      if (isLastStep) {
-                        print('Save data');
-                      } else {
-                        setState(() {
-                          currentStep += 1;
-                        });
-                      }
-                    },
-                    onStepCancel: currentStep == 0
-                        ? null
-                        : () => setState(() => currentStep -= 1),
+                  body: Theme(
+                    data: Theme.of(context).copyWith(
+                      colorScheme: ColorScheme.light(
+                        primary: kPrimaryColor,
+                      ),
+                    ),
+                    child: Stepper(
+                      steps: getSteps(),
+                      type: StepperType.horizontal,
+                      currentStep: currentStep,
+                      onStepContinue: () {
+                        final isLastStep = currentStep == getSteps().length - 1;
+                        final isLastPage = currentStep == getSteps().length - 2;
+                        if (isLastStep) {
+                          setState(() {
+                            //Set Status Done
+                            isCompleted = true;
+
+                            //Save Data
+
+                            //Reset
+                            resetState();
+                          });
+                        } else {
+                          setState(() {
+                            if (isLastPage)
+                              exitTime.text =
+                                  DateFormat('HH:mm:ss').format(DateTime.now());
+                            currentStep += 1;
+                          });
+                        }
+                      },
+                      onStepTapped: (step) => setState(() {
+                        currentStep = step;
+                      }),
+                      onStepCancel: currentStep == 0
+                          ? null
+                          : () => setState(() => currentStep -= 1),
+                      controlsBuilder: (context, details) {
+                        final isLastStep = currentStep == getSteps().length - 1;
+
+                        return Container(
+                          margin: EdgeInsets.fromLTRB(0, 20, 0, 0),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: ElevatedButton(
+                                  child: Text(isLastStep ? 'Confirm' : 'Next'),
+                                  onPressed: details.onStepContinue,
+                                ),
+                              ),
+                              SizedBox(
+                                width: 12,
+                              ),
+                              if (currentStep != 0)
+                                Expanded(
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: kColorsGrey200,
+                                    ),
+                                    child: Text(
+                                      'Back',
+                                      style: kTextDarkBase.copyWith(
+                                          color: kColorsGrey600),
+                                    ),
+                                    onPressed: details.onStepCancel,
+                                  ),
+                                ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
                   ),
                 ),
               ),
@@ -153,6 +189,7 @@ class _CreateLoadState extends State<CreateLoad> {
 
   List<Step> getSteps() => [
         Step(
+          state: currentStep > 0 ? StepState.complete : StepState.indexed,
           isActive: currentStep >= 0,
           title: Text('Entry'),
           content: Container(
@@ -181,16 +218,6 @@ class _CreateLoadState extends State<CreateLoad> {
               SizedBox(
                 height: 20,
               ),
-              InputDropdown(
-                items: itemsShift,
-                value: this.shiftValue,
-                onChanged: (value) => setState(() {
-                  this.shiftValue = value;
-                }),
-              ),
-              SizedBox(
-                height: 20,
-              ),
               InputTime(
                   time: entryTime,
                   label: 'Entry Time',
@@ -200,11 +227,22 @@ class _CreateLoadState extends State<CreateLoad> {
                       entryTime.text =
                           value; //set output date to TextField value.
                     });
-                  })
+                  }),
+              SizedBox(
+                height: 20,
+              ),
+              InputDropdown(
+                items: itemsShift,
+                value: this.shiftValue,
+                onChanged: (value) => setState(() {
+                  this.shiftValue = value;
+                }),
+              ),
             ]),
           ),
         ),
         Step(
+          state: currentStep > 1 ? StepState.complete : StepState.indexed,
           isActive: currentStep >= 1,
           title: Text('Truck'),
           content: Column(children: [
@@ -246,6 +284,7 @@ class _CreateLoadState extends State<CreateLoad> {
           ]),
         ),
         Step(
+          state: currentStep > 2 ? StepState.complete : StepState.indexed,
           isActive: currentStep >= 2,
           title: Text('Tonnage'),
           content: Container(
@@ -301,7 +340,169 @@ class _CreateLoadState extends State<CreateLoad> {
           title: Text('Out'),
           content: Container(
             child: Column(
-              children: [],
+              children: [
+                InputTime(
+                    time: exitTime,
+                    label: 'Exit Time',
+                    context: context,
+                    onChanged: (String value) {
+                      setState(() {
+                        entryTime.text =
+                            value; //set output date to TextField value.
+                      });
+                    }),
+                SizedBox(
+                  height: 30,
+                ),
+                Center(
+                  child: Text(
+                    'Data Overview',
+                    style: kTextDarkBold2Xl,
+                  ),
+                ),
+                Center(
+                  child: DataTable(
+                    columnSpacing: 250,
+                    columns: [
+                      DataColumn(label: Text('')),
+                      DataColumn(label: Text('')),
+                    ],
+                    rows: [
+                      DataRow(
+                        cells: [
+                          DataCell(Text('Carrier', style: kTextDarkBoldBase)),
+                          DataCell(
+                            carrier.text != ''
+                                ? Text(carrier.text)
+                                : Text('UNDEFINED',
+                                    style: TextStyle(color: kColorsRed500)),
+                          ),
+                        ],
+                      ),
+                      DataRow(
+                        cells: [
+                          DataCell(
+                              Text('Entry Date', style: kTextDarkBoldBase)),
+                          DataCell(
+                            date.text != ''
+                                ? Text(date.text)
+                                : Text('UNDEFINED',
+                                    style: TextStyle(color: kColorsRed500)),
+                          ),
+                        ],
+                      ),
+                      DataRow(
+                        cells: [
+                          DataCell(
+                              Text('Entry Time', style: kTextDarkBoldBase)),
+                          DataCell(
+                            entryTime.text != ''
+                                ? Text(entryTime.text)
+                                : Text('UNDEFINED',
+                                    style: TextStyle(color: kColorsRed500)),
+                          ),
+                        ],
+                      ),
+                      DataRow(
+                        cells: [
+                          DataCell(Text('Shift', style: kTextDarkBoldBase)),
+                          DataCell(
+                            Text(shiftValue!.key),
+                          ),
+                        ],
+                      ),
+                      DataRow(
+                        cells: [
+                          DataCell(Text('Truck', style: kTextDarkBoldBase)),
+                          DataCell(
+                            nopol.text != ''
+                                ? Text(nopol.text)
+                                : Text('UNDEFINED',
+                                    style: TextStyle(color: kColorsRed500)),
+                          ),
+                        ],
+                      ),
+                      DataRow(
+                        cells: [
+                          DataCell(
+                              Text('Empty Weight', style: kTextDarkBoldBase)),
+                          DataCell(
+                            weight_empty.text != '0'
+                                ? Text(weight_empty.text)
+                                : Text('UNDEFINED',
+                                    style: TextStyle(color: kColorsRed500)),
+                          ),
+                        ],
+                      ),
+                      DataRow(
+                        cells: [
+                          DataCell(Text('Fulfilled Weight',
+                              style: kTextDarkBoldBase)),
+                          DataCell(
+                            weight_full.text != '0'
+                                ? Text(weight_full.text)
+                                : Text('UNDEFINED',
+                                    style: TextStyle(color: kColorsRed500)),
+                          ),
+                        ],
+                      ),
+                      DataRow(
+                        cells: [
+                          DataCell(
+                              Text('Net Weight', style: kTextDarkBoldBase)),
+                          DataCell(
+                            net_weight.text != 'Undefined'
+                                ? Text(net_weight.text)
+                                : Text('UNDEFINED',
+                                    style: TextStyle(color: kColorsRed500)),
+                          ),
+                        ],
+                      ),
+                      DataRow(
+                        cells: [
+                          DataCell(Text('Warehouse', style: kTextDarkBoldBase)),
+                          DataCell(
+                            warehouse.text != ''
+                                ? Text(warehouse.text)
+                                : Text('UNDEFINED',
+                                    style: TextStyle(color: kColorsRed500)),
+                          ),
+                        ],
+                      ),
+                      DataRow(
+                        cells: [
+                          DataCell(Text('Palka', style: kTextDarkBoldBase)),
+                          DataCell(Text(palkaValue!.key)),
+                        ],
+                      ),
+                      DataRow(
+                        cells: [
+                          DataCell(Text('Grabber', style: kTextDarkBoldBase)),
+                          DataCell(Text(grabberValue!.key)),
+                        ],
+                      ),
+                      DataRow(
+                        cells: [
+                          DataCell(Text('Crane', style: kTextDarkBoldBase)),
+                          DataCell(Text(craneValue!.key)),
+                        ],
+                      ),
+                      DataRow(
+                        cells: [
+                          DataCell(
+                              Text('Entry Date', style: kTextDarkBoldBase)),
+                          DataCell(
+                            date.text != ''
+                                ? Text(date.text)
+                                : Text('UNDEFINED',
+                                    style: TextStyle(color: kColorsRed500)),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                )
+              ],
             ),
           ),
         ),
@@ -313,6 +514,46 @@ class _CreateLoadState extends State<CreateLoad> {
           (int.parse(weight_full.text == '' ? '0' : weight_full.text) -
                   int.parse(weight_empty.text == '' ? '0' : weight_empty.text))
               .toString();
+    });
+  }
+
+  void initValue() {
+    //Form Init
+    date.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    entryTime.text = DateFormat('HH:mm:ss').format(DateTime.now());
+    exitTime.text = DateFormat('HH:mm:ss').format(DateTime.now());
+    //Init Shift and Time
+    if (isCurrentTimeBetween(
+        [TimeOfDay(hour: 8, minute: 0), TimeOfDay(hour: 15, minute: 59)])) {
+      this.shiftValue = itemsShift[0];
+    } else if (isCurrentTimeBetween(
+        [TimeOfDay(hour: 16, minute: 0), TimeOfDay(hour: 23, minute: 59)])) {
+      this.shiftValue = itemsShift[1];
+    } else {
+      this.shiftValue = itemsShift[2];
+    }
+
+    this.palkaValue = itemsPalka[0];
+    this.grabberValue = itemsGrabber[0];
+    this.craneValue = itemsCrane[0];
+
+    this.net_weight.text = 'Undefined';
+    this.weight_empty.text = '0';
+    this.weight_full.text = '0';
+  }
+
+  void resetState() {
+    setState(() {
+      isCompleted = false;
+      currentStep = 0;
+
+      date.clear();
+      entryTime.clear();
+      nopol.clear();
+      weight_empty.clear();
+      weight_full.clear();
+      net_weight.clear();
+      initValue();
     });
   }
 }
