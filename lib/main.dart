@@ -8,10 +8,10 @@ import 'package:ltl_bulk/Shared/fonts.dart';
 import 'package:ltl_bulk/shared/colors.dart';
 
 //Widgets
-import 'package:ltl_bulk/Screens/Welcome/widgets/widgets.dart';
+import 'package:ltl_bulk/Screens/Auth/widgets/widgets.dart';
 
 //Screens
-import 'package:ltl_bulk/Screens/Welcome/welcome-screens.dart';
+import 'package:ltl_bulk/Screens/Auth/welcome-screens.dart';
 import 'package:ltl_bulk/Screens/Load/load-screens.dart';
 import 'package:ltl_bulk/Screens/Global/global-screens.dart';
 

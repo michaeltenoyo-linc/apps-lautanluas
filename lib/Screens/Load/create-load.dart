@@ -8,7 +8,7 @@ import 'package:ltl_bulk/Screens/Global/widgets/input-number.dart';
 import 'package:ltl_bulk/Screens/Global/widgets/input-time.dart';
 import 'package:ltl_bulk/Screens/Global/widgets/input-warehouse-typeahead.dart';
 import 'package:ltl_bulk/Screens/Global/widgets/widgets.dart';
-import 'package:ltl_bulk/Screens/Welcome/widgets/welcome-background.dart';
+import 'package:ltl_bulk/Screens/Auth/widgets/welcome-background.dart';
 import 'package:ltl_bulk/Shared/colors.dart';
 import 'package:ltl_bulk/Shared/fonts.dart';
 import 'package:intl/intl.dart';

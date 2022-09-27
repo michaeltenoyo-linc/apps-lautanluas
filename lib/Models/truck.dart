@@ -17,7 +17,7 @@ class TruckFakerData {
   static final List<ModelTruck> trucks = List.generate(
       50,
       (index) => ModelTruck(
-            nopol: faker.vehicle.make(),
+            nopol: faker.vehicle.vin(),
             type: faker.vehicle.model(),
           ));
 
@@ -28,4 +28,6 @@ class TruckFakerData {
 
         return truckLower.contains(queryLower);
       }).toList();
+
+  static List<ModelTruck> getAllData() => List.of(trucks).toList();
 }
