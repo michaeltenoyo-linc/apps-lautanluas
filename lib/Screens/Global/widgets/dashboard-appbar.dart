@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:ltl_bulk/Screens/Global/widgets/widgets.dart';
+import 'package:ltl_bulk/Services/firebase-auth.dart';
 import 'package:ltl_bulk/Shared/colors.dart';
 import 'package:ltl_bulk/Shared/fonts.dart';
 
@@ -25,6 +26,8 @@ class DashboardAppBar extends StatefulWidget implements PreferredSizeWidget {
 }
 
 class _DashboardAppBarState extends State<DashboardAppBar> {
+  final _auth = AuthService();
+
   @override
   Widget build(BuildContext context) {
     return AppBar(
@@ -93,7 +96,14 @@ class _DashboardAppBarState extends State<DashboardAppBar> {
           ),
           actions: [
             TextButton(
-              onPressed: () {},
+              onPressed: () async {
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: Text('Logging Out.'),
+                  duration: Duration(milliseconds: 2000),
+                ));
+                Navigator.pop(context);
+                await _auth.signOut();
+              },
               child: Text(
                 'LOG OUT',
               ),

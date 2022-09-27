@@ -1,7 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:ltl_bulk/Services/firebase-auth.dart';
 
 //Pallete
 import 'package:ltl_bulk/Shared/fonts.dart';
@@ -14,9 +17,12 @@ import 'package:ltl_bulk/Screens/Auth/widgets/widgets.dart';
 import 'package:ltl_bulk/Screens/Auth/welcome-screens.dart';
 import 'package:ltl_bulk/Screens/Load/load-screens.dart';
 import 'package:ltl_bulk/Screens/Global/global-screens.dart';
+import 'package:ltl_bulk/welcome-wrapper.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -41,7 +47,8 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: '/',
       routes: {
-        '/': (context) => Login(),
+        '/': (context) => WelcomeWrapper(),
+        'Login': (context) => Login(),
         'ForgotPassword': (context) => ForgotPassword(),
         'SignUp': (context) => SignUp(),
         'home/dashboard': (context) => Dashboard(),

@@ -6,6 +6,7 @@ import 'package:ltl_bulk/Screens/Global/widgets/widgets.dart';
 import 'package:ltl_bulk/Screens/Homepage/homepage-screens.dart';
 import 'package:ltl_bulk/Screens/Truck/truck-screens.dart';
 import 'package:ltl_bulk/Screens/Warehouse/warehouse-screens.dart';
+import 'package:ltl_bulk/Services/firebase-auth.dart';
 import 'package:ltl_bulk/Shared/colors.dart';
 
 class Dashboard extends StatefulWidget {
@@ -69,6 +70,7 @@ class _DashboardState extends State<Dashboard> {
 
   @override
   Widget build(BuildContext context) {
+    final _auth = AuthService();
     return Scaffold(
       backgroundColor: kPrimaryColor,
       body: SafeArea(
@@ -77,15 +79,14 @@ class _DashboardState extends State<Dashboard> {
             Container(
               width: xOffset,
               child: DrawerSidebar(
-                onSelectedItem: (item) {
+                onSelectedItem: (item) async {
                   switch (item) {
                     case DrawerItems.logout:
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                         content: Text('Logging Out.'),
                         duration: Duration(milliseconds: 2000),
                       ));
-
-                      Navigator.pop(context);
+                      await _auth.signOut();
                       break;
                     default:
                       isHomepage = item == DrawerItems.home ? true : false;
