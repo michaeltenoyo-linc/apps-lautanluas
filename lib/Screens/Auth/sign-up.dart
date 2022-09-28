@@ -7,8 +7,17 @@ import 'package:ltl_bulk/Screens/Auth/widgets/widgets.dart';
 import 'package:ltl_bulk/Shared/colors.dart';
 import 'package:ltl_bulk/Shared/fonts.dart';
 
-class SignUp extends StatelessWidget {
+class SignUp extends StatefulWidget {
   const SignUp({super.key});
+
+  @override
+  State<SignUp> createState() => _SignUpState();
+}
+
+class _SignUpState extends State<SignUp> {
+  final TextEditingController email = TextEditingController();
+  final TextEditingController password = TextEditingController();
+  final TextEditingController confirm = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -69,15 +78,7 @@ class SignUp extends StatelessWidget {
                     height: 20,
                   ),
                   WelcomeInput(
-                    size: size,
-                    icon: Icon(
-                      FontAwesomeIcons.user,
-                      size: 26,
-                      color: kLightColor,
-                    ),
-                    hintText: 'Username',
-                  ),
-                  WelcomeInput(
+                    controller: email,
                     size: size,
                     icon: Icon(
                       FontAwesomeIcons.envelope,
@@ -87,6 +88,7 @@ class SignUp extends StatelessWidget {
                     hintText: 'Email',
                   ),
                   WelcomeInput(
+                    controller: password,
                     size: size,
                     icon: Icon(
                       FontAwesomeIcons.lock,
@@ -97,6 +99,7 @@ class SignUp extends StatelessWidget {
                     isHidden: true,
                   ),
                   WelcomeInput(
+                    controller: confirm,
                     size: size,
                     icon: Icon(
                       FontAwesomeIcons.lock,

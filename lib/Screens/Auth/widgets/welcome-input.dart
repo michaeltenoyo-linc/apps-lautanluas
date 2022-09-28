@@ -11,6 +11,7 @@ class WelcomeInput extends StatelessWidget {
     this.isHidden = false,
     this.onEnter = TextInputAction.next,
     this.type = TextInputType.name,
+    required this.controller,
   }) : super(key: key);
 
   final Size size;
@@ -19,6 +20,7 @@ class WelcomeInput extends StatelessWidget {
   final bool isHidden;
   final TextInputAction onEnter;
   final TextInputType type;
+  final TextEditingController controller;
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +34,14 @@ class WelcomeInput extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
         ),
         child: Center(
-          child: TextField(
+          child: TextFormField(
+            validator: ((value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter some text';
+              }
+              return null;
+            }),
+            controller: this.controller,
             decoration: InputDecoration(
               border: InputBorder.none,
               prefixIcon: Padding(

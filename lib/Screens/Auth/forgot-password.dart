@@ -5,8 +5,15 @@ import 'package:ltl_bulk/Screens/Auth/widgets/widgets.dart';
 import 'package:ltl_bulk/Shared/fonts.dart';
 import 'package:ltl_bulk/shared/colors.dart';
 
-class ForgotPassword extends StatelessWidget {
+class ForgotPassword extends StatefulWidget {
   const ForgotPassword({super.key});
+
+  @override
+  State<ForgotPassword> createState() => _ForgotPasswordState();
+}
+
+class _ForgotPasswordState extends State<ForgotPassword> {
+  final TextEditingController email = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -54,6 +61,7 @@ class ForgotPassword extends StatelessWidget {
                   height: 20,
                 ),
                 WelcomeInput(
+                  controller: email,
                   size: size,
                   icon: Icon(
                     FontAwesomeIcons.envelope,

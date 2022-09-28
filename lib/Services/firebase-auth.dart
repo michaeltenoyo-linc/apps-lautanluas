@@ -14,7 +14,10 @@ class AuthService {
 
   //Create user object base on FirebaseUser
   ModelUser? _userFromFirebaseUser(User user) {
-    return user != null ? ModelUser(uid: user.uid) : null;
+    return user != null
+        ? ModelUser(
+            uid: user.uid, email: user.email != null ? user.email! : 'Anonymus')
+        : null;
   }
 
   // Sign In Anonymus
@@ -31,6 +34,18 @@ class AuthService {
   }
 
   //Sign In Email and Password
+  Future signInWithEmailAndPassword(String email, String password) async {
+    try {
+      UserCredential credential = await _auth.signInWithEmailAndPassword(
+          email: email, password: password);
+      User? user = credential.user;
+
+      return _userFromFirebaseUser(user!);
+    } catch (e) {
+      print(e.toString());
+      return null;
+    }
+  }
 
   //Register Email and Password
 
