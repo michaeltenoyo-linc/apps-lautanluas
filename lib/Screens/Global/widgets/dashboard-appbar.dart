@@ -5,6 +5,7 @@ import 'package:ltl_bulk/Screens/Global/widgets/widgets.dart';
 import 'package:ltl_bulk/Services/firebase-auth.dart';
 import 'package:ltl_bulk/Shared/colors.dart';
 import 'package:ltl_bulk/Shared/fonts.dart';
+import 'package:sweetalertv2/sweetalertv2.dart';
 
 class DashboardAppBar extends StatefulWidget implements PreferredSizeWidget {
   const DashboardAppBar({
@@ -97,12 +98,19 @@ class _DashboardAppBarState extends State<DashboardAppBar> {
           actions: [
             TextButton(
               onPressed: () async {
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                  content: Text('Logging Out.'),
-                  duration: Duration(milliseconds: 2000),
-                ));
-                Navigator.pop(context);
-                await _auth.signOut();
+                SweetAlertV2.show(context,
+                    subtitle: "Do you want to logout ?",
+                    style: SweetAlertV2Style.confirm,
+                    showCancelButton: true, onPress: (bool isConfirm) {
+                  if (isConfirm) {
+                    new Future.delayed(new Duration(seconds: 0), () async {
+                      Navigator.of(context).pop();
+                      await _auth.signOut();
+                    });
+                  }
+
+                  return true;
+                });
               },
               child: Text(
                 'LOG OUT',

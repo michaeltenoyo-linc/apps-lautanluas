@@ -1,13 +1,16 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter/material.dart';
 
 class ModelTruck {
   final String nopol;
   final String type;
+  final bool enabled;
 
   ModelTruck({
     required this.nopol,
     required this.type,
+    this.enabled = true,
   });
 }
 
@@ -30,4 +33,23 @@ class TruckFakerData {
       }).toList();
 
   static List<ModelTruck> getAllData() => List.of(trucks).toList();
+}
+
+//CRUD
+Future createTruck({required ModelTruck data}) async {
+  try {
+    final docTruck =
+        FirebaseFirestore.instance.collection('trucks').doc(data.nopol);
+
+    final json = {
+      'type': data.type,
+      'enabled': data.enabled,
+    };
+
+    await docTruck.set(json);
+    return true;
+  } catch (e) {
+    print(e.toString());
+    return false;
+  }
 }

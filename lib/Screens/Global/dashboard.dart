@@ -8,6 +8,7 @@ import 'package:ltl_bulk/Screens/Truck/truck-screens.dart';
 import 'package:ltl_bulk/Screens/Warehouse/warehouse-screens.dart';
 import 'package:ltl_bulk/Services/firebase-auth.dart';
 import 'package:ltl_bulk/Shared/colors.dart';
+import 'package:sweetalertv2/sweetalertv2.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
@@ -82,11 +83,20 @@ class _DashboardState extends State<Dashboard> {
                 onSelectedItem: (item) async {
                   switch (item) {
                     case DrawerItems.logout:
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                        content: Text('Logging Out.'),
-                        duration: Duration(milliseconds: 2000),
-                      ));
-                      await _auth.signOut();
+                      SweetAlertV2.show(context,
+                          subtitle: "Do you want to delete this message",
+                          style: SweetAlertV2Style.confirm,
+                          showCancelButton: true, onPress: (bool isConfirm) {
+                        if (isConfirm) {
+                          new Future.delayed(new Duration(seconds: 0),
+                              () async {
+                            await _auth.signOut();
+                          });
+                        }
+
+                        return true;
+                      });
+
                       break;
                     default:
                       isHomepage = item == DrawerItems.home ? true : false;
