@@ -84,7 +84,7 @@ class _DashboardState extends State<Dashboard> {
                   switch (item) {
                     case DrawerItems.logout:
                       SweetAlertV2.show(context,
-                          subtitle: "Do you want to delete this message",
+                          subtitle: "Do you want to logout ?",
                           style: SweetAlertV2Style.confirm,
                           showCancelButton: true, onPress: (bool isConfirm) {
                         if (isConfirm) {

@@ -1,7 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:ltl_bulk/Screens/Auth/widgets/welcome-background.dart';
 import 'package:ltl_bulk/Screens/Global/widgets/widgets.dart';
 import 'package:ltl_bulk/Shared/colors.dart';
 import 'package:ltl_bulk/Shared/fonts.dart';
@@ -43,15 +45,22 @@ class _TruckState extends State<Truck> {
       backgroundColor: Colors.transparent,
       body: Stack(
         children: [
+          WelcomeBackground(
+              assetUrl: 'assets/images/backgrounds/truck-master.png'),
           Center(
-            child: Padding(
-              padding: EdgeInsets.symmetric(vertical: size.height * 0.05),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(20.0),
-                child: Container(
-                  color: kLightColor,
-                  padding: EdgeInsets.all(25.0),
-                  child: SingleChildScrollView(child: buildDataTable()),
+            child: Container(
+              height: size.height * 0.8,
+              width: size.width * 0.7,
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: size.height * 0.05),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20.0),
+                  child: Container(
+                    color: kLightColor,
+                    padding: EdgeInsets.all(25.0),
+                    child: SingleChildScrollView(
+                        child: streamTruckFirestoreDatatable(context)),
+                  ),
                 ),
               ),
             ),
@@ -109,7 +118,8 @@ class _TruckState extends State<Truck> {
                                   onPressed: () {
                                     if (_formTruck.currentState!.validate()) {
                                       SweetAlertV2.show(context,
-                                          subtitle: "Do you want to logout ?",
+                                          subtitle:
+                                              "Do you want to save new truck ?",
                                           style: SweetAlertV2Style.confirm,
                                           showCancelButton: true,
                                           onPress: (bool isConfirm) {
@@ -169,6 +179,7 @@ class _TruckState extends State<Truck> {
     );
   }
 
+  //BUILD DATATABLE FROM DUMMY STATIC DATA MODEL
   Widget buildDataTable() {
     final columns = ['Vehicle Number', 'Type'];
 
@@ -220,4 +231,6 @@ class _TruckState extends State<Truck> {
 
   int compareString(bool ascending, String value1, String value2) =>
       ascending ? value1.compareTo(value2) : value2.compareTo(value1);
+
+  //END BUILD DATATABLE
 }
