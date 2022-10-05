@@ -1,10 +1,13 @@
+import 'dart:convert';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:ltl_bulk/Models/warehouse.dart';
+import 'package:ltl_bulk/Models/consignee.dart';
 
-class InputWarehouseTypeAhead extends StatefulWidget {
-  const InputWarehouseTypeAhead({
+class InputConsigneeTypeAhead extends StatefulWidget {
+  const InputConsigneeTypeAhead({
     Key? key,
     required this.name,
   }) : super(key: key);
@@ -12,13 +15,13 @@ class InputWarehouseTypeAhead extends StatefulWidget {
   final TextEditingController name;
 
   @override
-  State<InputWarehouseTypeAhead> createState() =>
-      _InputWarehouseTypeAheadState();
+  State<InputConsigneeTypeAhead> createState() =>
+      _InputConsigneeTypeAheadState();
 }
 
-class _InputWarehouseTypeAheadState extends State<InputWarehouseTypeAhead> {
-  WarehouseSearchService _searchService = WarehouseSearchService();
-  List<ModelWarehouse> search = <ModelWarehouse>[];
+class _InputConsigneeTypeAheadState extends State<InputConsigneeTypeAhead> {
+  ConsigneeSearchService _searchService = ConsigneeSearchService();
+  List<ModelConsignee> search = <ModelConsignee>[];
 
   @override
   void initState() {
@@ -28,10 +31,9 @@ class _InputWarehouseTypeAheadState extends State<InputWarehouseTypeAhead> {
 
   Future getDocs() async {
     search = (await _searchService.getSearch()).map((item) {
-      return ModelWarehouse(
+      return ModelConsignee(
         id: item.id,
         name: item.get('name'),
-        address: item.get('address'),
         enabled: item.get('enabled'),
       );
     }).toList();
@@ -39,15 +41,15 @@ class _InputWarehouseTypeAheadState extends State<InputWarehouseTypeAhead> {
 
   @override
   Widget build(BuildContext context) {
-    return TypeAheadFormField<ModelWarehouse?>(
+    return TypeAheadFormField<ModelConsignee?>(
       hideSuggestionsOnKeyboardHide: true,
       debounceDuration: Duration(milliseconds: 500),
       textFieldConfiguration: TextFieldConfiguration(
         controller: widget.name,
         decoration: InputDecoration(
-          prefixIcon: Icon(FontAwesomeIcons.warehouse),
+          prefixIcon: Icon(FontAwesomeIcons.userGroup),
           border: OutlineInputBorder(),
-          hintText: 'Warehouse',
+          hintText: 'Consignee',
         ),
       ),
       suggestionsCallback: (pattern) {
@@ -55,20 +57,20 @@ class _InputWarehouseTypeAheadState extends State<InputWarehouseTypeAhead> {
           (doc) => doc.name.toLowerCase().contains(pattern.toLowerCase()),
         );
       },
-      itemBuilder: (context, ModelWarehouse? suggestion) {
-        final warehouse = suggestion!;
+      itemBuilder: (context, ModelConsignee? suggestion) {
+        final consignee = suggestion!;
 
         return ListTile(
-          title: Text(warehouse.name),
+          title: Text(consignee.name),
         );
       },
-      onSuggestionSelected: (ModelWarehouse? suggestion) {
-        final warehouse = suggestion!;
+      onSuggestionSelected: (ModelConsignee? suggestion) {
+        final consignee = suggestion!;
 
-        widget.name.text = warehouse.name;
+        widget.name.text = consignee.name;
       },
       validator: (value) =>
-          value != null && value.isEmpty ? 'Please select a warehouse' : null,
+          value != null && value.isEmpty ? 'Please select a consignee' : null,
     );
   }
 }

@@ -20,7 +20,7 @@ class ModelWarehouse {
   });
 }
 
-//Dummy Data
+//Serach Data
 class WarehouseFakerData {
   static final faker = Faker();
   static final List<ModelWarehouse> warehouses = List.generate(
@@ -38,6 +38,16 @@ class WarehouseFakerData {
 
         return warehouseLower.contains(queryLower);
       }).toList();
+}
+
+class WarehouseSearchService {
+  FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  String ref = 'warehouses';
+
+  Future<List<DocumentSnapshot>> getSearch() async =>
+      await _firestore.collection(ref).get().then((snaps) {
+        return snaps.docs;
+      });
 }
 
 //CRUD

@@ -38,6 +38,16 @@ class TruckFakerData {
   static List<ModelTruck> getAllData() => List.of(trucks).toList();
 }
 
+class TruckSearchService {
+  FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  String ref = 'trucks';
+
+  Future<List<DocumentSnapshot>> getSearch() async =>
+      await _firestore.collection(ref).get().then((snaps) {
+        return snaps.docs;
+      });
+}
+
 //CRUD
 Future createTruck({required ModelTruck data}) async {
   try {

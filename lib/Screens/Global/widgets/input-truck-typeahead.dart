@@ -4,7 +4,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../../Models/truck.dart';
 
-class InputTruckTypeAhead extends StatelessWidget {
+class InputTruckTypeAhead extends StatefulWidget {
   const InputTruckTypeAhead({
     Key? key,
     required this.nopol,
@@ -13,19 +13,47 @@ class InputTruckTypeAhead extends StatelessWidget {
   final TextEditingController nopol;
 
   @override
+  State<InputTruckTypeAhead> createState() => _InputTruckTypeAheadState();
+}
+
+class _InputTruckTypeAheadState extends State<InputTruckTypeAhead> {
+  TruckSearchService _searchService = TruckSearchService();
+  List<ModelTruck> search = <ModelTruck>[];
+
+  @override
+  void initState() {
+    getDocs();
+    super.initState();
+  }
+
+  Future getDocs() async {
+    search = (await _searchService.getSearch()).map((item) {
+      return ModelTruck(
+        nopol: item.id,
+        type: item.get('type'),
+        enabled: item.get('enabled'),
+      );
+    }).toList();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return TypeAheadFormField<ModelTruck?>(
       hideSuggestionsOnKeyboardHide: true,
       debounceDuration: Duration(milliseconds: 500),
       textFieldConfiguration: TextFieldConfiguration(
-        controller: nopol,
+        controller: widget.nopol,
         decoration: InputDecoration(
           prefixIcon: Icon(FontAwesomeIcons.truck),
           border: OutlineInputBorder(),
           hintText: 'Truck',
         ),
       ),
-      suggestionsCallback: TruckFakerData.getSuggestions,
+      suggestionsCallback: (pattern) {
+        return search.where(
+          (doc) => doc.nopol.toLowerCase().contains(pattern.toLowerCase()),
+        );
+      },
       itemBuilder: (context, ModelTruck? suggestion) {
         final truck = suggestion!;
 
@@ -36,7 +64,7 @@ class InputTruckTypeAhead extends StatelessWidget {
       onSuggestionSelected: (ModelTruck? suggestion) {
         final truck = suggestion!;
 
-        nopol.text = truck.nopol;
+        widget.nopol.text = truck.nopol;
       },
       validator: (value) =>
           value != null && value.isEmpty ? 'Please select a truck' : null,

@@ -17,6 +17,35 @@ class ModelConsignee {
   });
 }
 
+//Search Service
+class ConsigneeFakerData {
+  static final faker = Faker();
+  static final List<ModelConsignee> consignees = List.generate(
+      50,
+      (index) => ModelConsignee(
+            id: faker.randomGenerator.integer(1000).toString(),
+            name: faker.company.name(),
+          ));
+
+  static List<ModelConsignee> getSuggestions(String query) =>
+      List.of(consignees).where((consignee) {
+        final consigneeLower = consignee.name.toLowerCase();
+        final queryLower = query.toLowerCase();
+
+        return consigneeLower.contains(queryLower);
+      }).toList();
+}
+
+class ConsigneeSearchService {
+  FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  String ref = 'consignees';
+
+  Future<List<DocumentSnapshot>> getSearch() async =>
+      await _firestore.collection(ref).get().then((snaps) {
+        return snaps.docs;
+      });
+}
+
 //CRUD
 Future createConsignee({required ModelConsignee data}) async {
   try {

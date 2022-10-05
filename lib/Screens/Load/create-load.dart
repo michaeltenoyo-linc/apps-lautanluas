@@ -4,6 +4,7 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:ltl_bulk/Models/truck.dart';
+import 'package:ltl_bulk/Screens/Global/widgets/input-consignee-typeahead.dart';
 import 'package:ltl_bulk/Screens/Global/widgets/input-number.dart';
 import 'package:ltl_bulk/Screens/Global/widgets/input-time.dart';
 import 'package:ltl_bulk/Screens/Global/widgets/input-warehouse-typeahead.dart';
@@ -26,6 +27,7 @@ class _CreateLoadState extends State<CreateLoad> {
 
   //Form Editing Controller
   final carrier = TextEditingController();
+  final consignee = TextEditingController();
   final date = TextEditingController();
   final entryTime = TextEditingController();
   final exitTime = TextEditingController();
@@ -137,6 +139,11 @@ class _CreateLoadState extends State<CreateLoad> {
                         }
                       },
                       onStepTapped: (step) => setState(() {
+                        final isLastPage = currentStep == getSteps().length - 2;
+
+                        if (isLastPage)
+                          exitTime.text =
+                              DateFormat('HH:mm:ss').format(DateTime.now());
                         currentStep = step;
                       }),
                       onStepCancel: currentStep == 0
@@ -202,6 +209,10 @@ class _CreateLoadState extends State<CreateLoad> {
                   icon: Icon(FontAwesomeIcons.ship),
                 ),
               ),
+              SizedBox(
+                height: 20,
+              ),
+              InputConsigneeTypeAhead(name: consignee),
               SizedBox(
                 height: 20,
               ),
@@ -374,6 +385,17 @@ class _CreateLoadState extends State<CreateLoad> {
                           DataCell(
                             carrier.text != ''
                                 ? Text(carrier.text)
+                                : Text('UNDEFINED',
+                                    style: TextStyle(color: kColorsRed500)),
+                          ),
+                        ],
+                      ),
+                      DataRow(
+                        cells: [
+                          DataCell(Text('Consignee', style: kTextDarkBoldBase)),
+                          DataCell(
+                            consignee.text != ''
+                                ? Text(consignee.text)
                                 : Text('UNDEFINED',
                                     style: TextStyle(color: kColorsRed500)),
                           ),
