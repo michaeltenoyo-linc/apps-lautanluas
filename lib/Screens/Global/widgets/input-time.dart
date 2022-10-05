@@ -8,17 +8,25 @@ class InputTime extends StatelessWidget {
     required this.label,
     required this.context,
     required this.onChanged,
+    this.validatorLabel = 'Please enter time',
   }) : super(key: key);
 
   final TextEditingController time;
   final String label;
   final BuildContext context;
   final Function(String value) onChanged;
+  final String validatorLabel;
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
       controller: time, //editing controller of this TextField
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return validatorLabel;
+        }
+        return null;
+      },
       decoration: InputDecoration(
         icon: Icon(Icons.timer), //icon of text field
         labelText: label, //label text of field

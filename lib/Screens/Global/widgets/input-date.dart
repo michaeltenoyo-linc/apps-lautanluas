@@ -8,17 +8,25 @@ class InputDate extends StatelessWidget {
     required this.context,
     required this.onChanged,
     required this.label,
+    this.validatorLabel = 'Please enter date',
   }) : super(key: key);
 
   final TextEditingController date;
   final BuildContext context;
   final Function(String value) onChanged;
   final String label;
+  final String validatorLabel;
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
       controller: date, //editing controller of this TextField
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return validatorLabel;
+        }
+        return null;
+      },
       decoration: InputDecoration(
         icon: Icon(Icons.calendar_today), //icon of text field
         labelText: label, //label text of field

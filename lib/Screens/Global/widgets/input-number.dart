@@ -13,6 +13,7 @@ class InputNumber extends StatelessWidget {
     this.readOnly = false,
     this.inputAction = TextInputAction.done,
     this.initialValue = null,
+    this.validatorLabel = 'Please enter the right number',
   });
 
   final TextEditingController controller;
@@ -22,14 +23,21 @@ class InputNumber extends StatelessWidget {
   final bool readOnly;
   final TextInputAction inputAction;
   final dynamic initialValue;
+  final String validatorLabel;
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
       controller: controller,
+      validator: (value) {
+        if (value == null || value.isEmpty || value == '0') {
+          return validatorLabel;
+        }
+        return null;
+      },
       keyboardType: TextInputType.number,
       inputFormatters: <TextInputFormatter>[
-        FilteringTextInputFormatter.digitsOnly
+        FilteringTextInputFormatter.digitsOnly,
       ],
       readOnly: readOnly,
       textInputAction: inputAction,

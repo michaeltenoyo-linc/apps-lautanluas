@@ -3,6 +3,8 @@ import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:ltl_bulk/Models/consignee.dart';
+import 'package:ltl_bulk/Models/load.dart';
 import 'package:ltl_bulk/Models/truck.dart';
 import 'package:ltl_bulk/Screens/Global/widgets/input-consignee-typeahead.dart';
 import 'package:ltl_bulk/Screens/Global/widgets/input-number.dart';
@@ -13,6 +15,7 @@ import 'package:ltl_bulk/Screens/Auth/widgets/welcome-background.dart';
 import 'package:ltl_bulk/Shared/colors.dart';
 import 'package:ltl_bulk/Shared/fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:sweetalertv2/sweetalertv2.dart';
 
 class CreateLoad extends StatefulWidget {
   const CreateLoad({super.key});
@@ -25,6 +28,14 @@ class _CreateLoadState extends State<CreateLoad> {
   int currentStep = 0;
   bool isCompleted = false;
 
+  //Form State
+  final List<GlobalKey<FormState>> _formLoad = [
+    GlobalKey<FormState>(),
+    GlobalKey<FormState>(),
+    GlobalKey<FormState>(),
+    GlobalKey<FormState>(),
+  ];
+
   //Form Editing Controller
   final carrier = TextEditingController();
   final consignee = TextEditingController();
@@ -36,6 +47,7 @@ class _CreateLoadState extends State<CreateLoad> {
   final weight_empty = TextEditingController();
   final weight_full = TextEditingController();
   final net_weight = TextEditingController();
+  final note = TextEditingController();
 
   late DropdownKeyValue? shiftValue;
   late DropdownKeyValue? palkaValue;
@@ -117,34 +129,94 @@ class _CreateLoadState extends State<CreateLoad> {
                       type: StepperType.horizontal,
                       currentStep: currentStep,
                       onStepContinue: () {
-                        final isLastStep = currentStep == getSteps().length - 1;
-                        final isLastPage = currentStep == getSteps().length - 2;
-                        if (isLastStep) {
-                          setState(() {
-                            //Set Status Done
-                            isCompleted = true;
+                        if (_formLoad[currentStep].currentState!.validate()) {
+                          final isLastStep =
+                              currentStep == getSteps().length - 1;
+                          final isLastPage =
+                              currentStep == getSteps().length - 2;
+                          if (isLastStep) {
+                            //CONFIRM SAVE DATA
+                            SweetAlertV2.show(context,
+                                subtitle: "Do you want to save new truck ?",
+                                style: SweetAlertV2Style.confirm,
+                                showCancelButton: true,
+                                onPress: (bool isConfirm) {
+                              if (isConfirm) {
+                                setState(() async {
+                                  //Set Status Done
+                                  isCompleted = true;
 
-                            //Save Data
+                                  //Save Data
+                                  final truck = ModelLoad(
+                                    id: 'auto',
+                                    carrier: carrier.text,
+                                    truck_in: DateFormat("HH:mm:ss")
+                                        .parse(entryTime.text),
+                                    truck_out: DateFormat("HH:mm:ss")
+                                        .parse(exitTime.text),
+                                    date: DateFormat("yyyy-MM-dd")
+                                        .parse(date.text),
+                                    weight_empty:
+                                        double.parse(weight_empty.text),
+                                    weight_full: double.parse(weight_full.text),
+                                    net_weight: double.parse(net_weight.text),
+                                    warehouse: warehouse.text,
+                                    consignee: consignee.text,
+                                    palka: int.parse(palkaValue!.key),
+                                    crane: craneValue!.key,
+                                    grabber: grabberValue!.key,
+                                    nopol: nopol.text,
+                                    note: note.text,
+                                    shift: int.parse(shiftValue!.key),
+                                  );
 
-                            //Reset
-                            resetState();
-                          });
-                        } else {
-                          setState(() {
-                            if (isLastPage)
-                              exitTime.text =
-                                  DateFormat('HH:mm:ss').format(DateTime.now());
-                            currentStep += 1;
-                          });
+                                  bool result = await createLoad(data: truck);
+
+                                  if (result) {
+                                    ScaffoldMessenger.of(context)
+                                        .showSnackBar(SnackBar(
+                                      content: Text(
+                                          'Success! New truck has been saved.'),
+                                      duration: Duration(milliseconds: 2000),
+                                    ));
+                                  } else {
+                                    ScaffoldMessenger.of(context)
+                                        .showSnackBar(SnackBar(
+                                      content:
+                                          Text('Error! Please try again...'),
+                                      duration: Duration(milliseconds: 2000),
+                                    ));
+                                  }
+
+                                  //Reset
+                                  resetState();
+                                  Navigator.of(context).pop();
+                                });
+                              }
+
+                              return true;
+                            });
+                            //END CONFIRMATION
+                          } else {
+                            setState(() {
+                              if (isLastPage)
+                                exitTime.text = DateFormat('HH:mm:ss')
+                                    .format(DateTime.now());
+                              currentStep += 1;
+                            });
+                          }
                         }
                       },
                       onStepTapped: (step) => setState(() {
-                        final isLastPage = currentStep == getSteps().length - 2;
+                        if (_formLoad[currentStep].currentState!.validate()) {
+                          final isLastPage =
+                              currentStep == getSteps().length - 2;
 
-                        if (isLastPage)
-                          exitTime.text =
-                              DateFormat('HH:mm:ss').format(DateTime.now());
-                        currentStep = step;
+                          if (isLastPage)
+                            exitTime.text =
+                                DateFormat('HH:mm:ss').format(DateTime.now());
+                          currentStep = step;
+                        }
                       }),
                       onStepCancel: currentStep == 0
                           ? null
@@ -199,162 +271,47 @@ class _CreateLoadState extends State<CreateLoad> {
           state: currentStep > 0 ? StepState.complete : StepState.indexed,
           isActive: currentStep >= 0,
           title: Text('Entry'),
-          content: Container(
-            child: Column(children: [
-              TextFormField(
-                controller: carrier,
-                decoration: InputDecoration(
-                  labelText: 'Carrier Ship',
-                  hintText: "Please input carrier's name",
-                  icon: Icon(FontAwesomeIcons.ship),
+          content: Form(
+            key: _formLoad[0],
+            child: Container(
+              child: Column(children: [
+                TextFormField(
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter some text';
+                    }
+                    return null;
+                  },
+                  controller: carrier,
+                  decoration: InputDecoration(
+                    labelText: 'Carrier Ship',
+                    hintText: "Please input carrier's name",
+                    icon: Icon(FontAwesomeIcons.ship),
+                  ),
                 ),
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              InputConsigneeTypeAhead(name: consignee),
-              SizedBox(
-                height: 20,
-              ),
-              InputDate(
-                label: 'Entry Date',
-                date: date,
-                context: context,
-                onChanged: (String value) {
-                  setState(() {
-                    date.text = value; //set output date to TextField value.
-                  });
-                },
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              InputTime(
-                  time: entryTime,
-                  label: 'Entry Time',
+                SizedBox(
+                  height: 20,
+                ),
+                InputConsigneeTypeAhead(name: consignee),
+                SizedBox(
+                  height: 20,
+                ),
+                InputDate(
+                  label: 'Entry Date',
+                  date: date,
                   context: context,
                   onChanged: (String value) {
                     setState(() {
-                      entryTime.text =
-                          value; //set output date to TextField value.
+                      date.text = value; //set output date to TextField value.
                     });
-                  }),
-              SizedBox(
-                height: 20,
-              ),
-              InputDropdown(
-                items: itemsShift,
-                value: this.shiftValue,
-                onChanged: (value) => setState(() {
-                  this.shiftValue = value;
-                }),
-              ),
-            ]),
-          ),
-        ),
-        Step(
-          state: currentStep > 1 ? StepState.complete : StepState.indexed,
-          isActive: currentStep >= 1,
-          title: Text('Truck'),
-          content: Column(children: [
-            InputTruckTypeAhead(nopol: nopol),
-            SizedBox(
-              height: 20,
-            ),
-            Focus(
-              onFocusChange: (value) {
-                onUpdateNetWeight();
-              },
-              child: InputNumber(
-                controller: weight_empty,
-                icon: Icon(FontAwesomeIcons.scaleBalanced),
-                hintText: 'Please fill in when truck is empty',
-                label: 'Empty Weight (KG)',
-                inputAction: TextInputAction.next,
-              ),
-            ),
-            Focus(
-              onFocusChange: (value) {
-                onUpdateNetWeight();
-              },
-              child: InputNumber(
-                controller: weight_full,
-                icon: Icon(FontAwesomeIcons.scaleBalanced),
-                hintText: 'Please fill in when truck is full',
-                label: 'Filled Weight (KG)',
-                inputAction: TextInputAction.done,
-              ),
-            ),
-            InputNumber(
-              controller: net_weight,
-              icon: Icon(FontAwesomeIcons.weightScale),
-              inputAction: TextInputAction.next,
-              label: 'Net Weight (KG)',
-              readOnly: true,
-            )
-          ]),
-        ),
-        Step(
-          state: currentStep > 2 ? StepState.complete : StepState.indexed,
-          isActive: currentStep >= 2,
-          title: Text('Tonnage'),
-          content: Container(
-            child: Column(
-              children: [
-                InputWarehouseTypeAhead(
-                  name: warehouse,
+                  },
                 ),
                 SizedBox(
-                  height: 30,
+                  height: 20,
                 ),
-                InputDropdown(
-                  value: palkaValue,
-                  items: itemsPalka,
-                  onChanged: (value) => setState(() {
-                    this.palkaValue = value;
-                  }),
-                ),
-                SizedBox(
-                  height: 30,
-                ),
-                Container(
-                  child: GridView.count(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 20,
-                    childAspectRatio: 6,
-                    mainAxisSpacing: 20,
-                    shrinkWrap: true,
-                    children: [
-                      InputDropdown(
-                        value: grabberValue,
-                        items: itemsGrabber,
-                        onChanged: (value) => setState(() {
-                          this.grabberValue = value;
-                        }),
-                      ),
-                      InputDropdown(
-                        value: craneValue,
-                        items: itemsCrane,
-                        onChanged: (value) => setState(() {
-                          this.craneValue = value;
-                        }),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        Step(
-          isActive: currentStep >= 3,
-          title: Text('Out'),
-          content: Container(
-            child: Column(
-              children: [
                 InputTime(
-                    time: exitTime,
-                    label: 'Exit Time',
+                    time: entryTime,
+                    label: 'Entry Time',
                     context: context,
                     onChanged: (String value) {
                       setState(() {
@@ -363,168 +320,320 @@ class _CreateLoadState extends State<CreateLoad> {
                       });
                     }),
                 SizedBox(
-                  height: 30,
+                  height: 20,
                 ),
-                Center(
-                  child: Text(
-                    'Data Overview',
-                    style: kTextDarkBold2Xl,
-                  ),
+                InputDropdown(
+                  items: itemsShift,
+                  value: this.shiftValue,
+                  onChanged: (value) => setState(() {
+                    this.shiftValue = value;
+                  }),
                 ),
-                Center(
-                  child: DataTable(
-                    columnSpacing: 250,
-                    columns: [
-                      DataColumn(label: Text('')),
-                      DataColumn(label: Text('')),
-                    ],
-                    rows: [
-                      DataRow(
-                        cells: [
-                          DataCell(Text('Carrier', style: kTextDarkBoldBase)),
-                          DataCell(
-                            carrier.text != ''
-                                ? Text(carrier.text)
-                                : Text('UNDEFINED',
-                                    style: TextStyle(color: kColorsRed500)),
-                          ),
-                        ],
-                      ),
-                      DataRow(
-                        cells: [
-                          DataCell(Text('Consignee', style: kTextDarkBoldBase)),
-                          DataCell(
-                            consignee.text != ''
-                                ? Text(consignee.text)
-                                : Text('UNDEFINED',
-                                    style: TextStyle(color: kColorsRed500)),
-                          ),
-                        ],
-                      ),
-                      DataRow(
-                        cells: [
-                          DataCell(
-                              Text('Entry Date', style: kTextDarkBoldBase)),
-                          DataCell(
-                            date.text != ''
-                                ? Text(date.text)
-                                : Text('UNDEFINED',
-                                    style: TextStyle(color: kColorsRed500)),
-                          ),
-                        ],
-                      ),
-                      DataRow(
-                        cells: [
-                          DataCell(
-                              Text('Entry Time', style: kTextDarkBoldBase)),
-                          DataCell(
-                            entryTime.text != ''
-                                ? Text(entryTime.text)
-                                : Text('UNDEFINED',
-                                    style: TextStyle(color: kColorsRed500)),
-                          ),
-                        ],
-                      ),
-                      DataRow(
-                        cells: [
-                          DataCell(Text('Shift', style: kTextDarkBoldBase)),
-                          DataCell(
-                            Text(shiftValue!.key),
-                          ),
-                        ],
-                      ),
-                      DataRow(
-                        cells: [
-                          DataCell(Text('Truck', style: kTextDarkBoldBase)),
-                          DataCell(
-                            nopol.text != ''
-                                ? Text(nopol.text)
-                                : Text('UNDEFINED',
-                                    style: TextStyle(color: kColorsRed500)),
-                          ),
-                        ],
-                      ),
-                      DataRow(
-                        cells: [
-                          DataCell(
-                              Text('Empty Weight', style: kTextDarkBoldBase)),
-                          DataCell(
-                            weight_empty.text != '0'
-                                ? Text(weight_empty.text)
-                                : Text('UNDEFINED',
-                                    style: TextStyle(color: kColorsRed500)),
-                          ),
-                        ],
-                      ),
-                      DataRow(
-                        cells: [
-                          DataCell(Text('Fulfilled Weight',
-                              style: kTextDarkBoldBase)),
-                          DataCell(
-                            weight_full.text != '0'
-                                ? Text(weight_full.text)
-                                : Text('UNDEFINED',
-                                    style: TextStyle(color: kColorsRed500)),
-                          ),
-                        ],
-                      ),
-                      DataRow(
-                        cells: [
-                          DataCell(
-                              Text('Net Weight', style: kTextDarkBoldBase)),
-                          DataCell(
-                            net_weight.text != 'Undefined'
-                                ? Text(net_weight.text)
-                                : Text('UNDEFINED',
-                                    style: TextStyle(color: kColorsRed500)),
-                          ),
-                        ],
-                      ),
-                      DataRow(
-                        cells: [
-                          DataCell(Text('Warehouse', style: kTextDarkBoldBase)),
-                          DataCell(
-                            warehouse.text != ''
-                                ? Text(warehouse.text)
-                                : Text('UNDEFINED',
-                                    style: TextStyle(color: kColorsRed500)),
-                          ),
-                        ],
-                      ),
-                      DataRow(
-                        cells: [
-                          DataCell(Text('Palka', style: kTextDarkBoldBase)),
-                          DataCell(Text(palkaValue!.key)),
-                        ],
-                      ),
-                      DataRow(
-                        cells: [
-                          DataCell(Text('Grabber', style: kTextDarkBoldBase)),
-                          DataCell(Text(grabberValue!.key)),
-                        ],
-                      ),
-                      DataRow(
-                        cells: [
-                          DataCell(Text('Crane', style: kTextDarkBoldBase)),
-                          DataCell(Text(craneValue!.key)),
-                        ],
-                      ),
-                      DataRow(
-                        cells: [
-                          DataCell(
-                              Text('Entry Date', style: kTextDarkBoldBase)),
-                          DataCell(
-                            date.text != ''
-                                ? Text(date.text)
-                                : Text('UNDEFINED',
-                                    style: TextStyle(color: kColorsRed500)),
-                          ),
-                        ],
-                      ),
-                    ],
+              ]),
+            ),
+          ),
+        ),
+        Step(
+          state: currentStep > 1 ? StepState.complete : StepState.indexed,
+          isActive: currentStep >= 1,
+          title: Text('Truck'),
+          content: Form(
+            key: _formLoad[1],
+            child: Column(children: [
+              InputTruckTypeAhead(nopol: nopol),
+              SizedBox(
+                height: 20,
+              ),
+              Focus(
+                onFocusChange: (value) {
+                  onUpdateNetWeight();
+                },
+                child: InputNumber(
+                  controller: weight_empty,
+                  icon: Icon(FontAwesomeIcons.scaleBalanced),
+                  hintText: 'Please fill in when truck is empty',
+                  label: 'Empty Weight (KG)',
+                  inputAction: TextInputAction.next,
+                ),
+              ),
+              Focus(
+                onFocusChange: (value) {
+                  onUpdateNetWeight();
+                },
+                child: InputNumber(
+                  controller: weight_full,
+                  icon: Icon(FontAwesomeIcons.scaleBalanced),
+                  hintText: 'Please fill in when truck is full',
+                  label: 'Filled Weight (KG)',
+                  inputAction: TextInputAction.done,
+                ),
+              ),
+              InputNumber(
+                controller: net_weight,
+                icon: Icon(FontAwesomeIcons.weightScale),
+                inputAction: TextInputAction.next,
+                label: 'Net Weight (KG)',
+                readOnly: true,
+              )
+            ]),
+          ),
+        ),
+        Step(
+          state: currentStep > 2 ? StepState.complete : StepState.indexed,
+          isActive: currentStep >= 2,
+          title: Text('Tonnage'),
+          content: Form(
+            key: _formLoad[2],
+            child: Container(
+              child: Column(
+                children: [
+                  InputWarehouseTypeAhead(
+                    name: warehouse,
                   ),
-                )
-              ],
+                  SizedBox(
+                    height: 30,
+                  ),
+                  InputDropdown(
+                    value: palkaValue,
+                    items: itemsPalka,
+                    onChanged: (value) => setState(() {
+                      this.palkaValue = value;
+                    }),
+                  ),
+                  SizedBox(
+                    height: 30,
+                  ),
+                  Container(
+                    child: GridView.count(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 20,
+                      childAspectRatio: 6,
+                      mainAxisSpacing: 20,
+                      shrinkWrap: true,
+                      children: [
+                        InputDropdown(
+                          value: grabberValue,
+                          items: itemsGrabber,
+                          onChanged: (value) => setState(() {
+                            this.grabberValue = value;
+                          }),
+                        ),
+                        InputDropdown(
+                          value: craneValue,
+                          items: itemsCrane,
+                          onChanged: (value) => setState(() {
+                            this.craneValue = value;
+                          }),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        Step(
+          isActive: currentStep >= 3,
+          title: Text('Out'),
+          content: Form(
+            key: _formLoad[3],
+            child: Container(
+              child: Column(
+                children: [
+                  InputTime(
+                      time: exitTime,
+                      label: 'Exit Time',
+                      context: context,
+                      onChanged: (String value) {
+                        setState(() {
+                          entryTime.text =
+                              value; //set output date to TextField value.
+                        });
+                      }),
+                  SizedBox(
+                    height: 30,
+                  ),
+                  TextFormField(
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter some text';
+                      }
+                      return null;
+                    },
+                    controller: note,
+                    decoration: InputDecoration(
+                      labelText: 'Additional Note',
+                      hintText: "Please input additional note.",
+                      icon: Icon(FontAwesomeIcons.ship),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 30,
+                  ),
+                  Center(
+                    child: Text(
+                      'Data Overview',
+                      style: kTextDarkBold2Xl,
+                    ),
+                  ),
+                  Center(
+                    child: DataTable(
+                      columnSpacing: 250,
+                      columns: [
+                        DataColumn(label: Text('')),
+                        DataColumn(label: Text('')),
+                      ],
+                      rows: [
+                        DataRow(
+                          cells: [
+                            DataCell(Text('Carrier', style: kTextDarkBoldBase)),
+                            DataCell(
+                              carrier.text != ''
+                                  ? Text(carrier.text)
+                                  : Text('UNDEFINED',
+                                      style: TextStyle(color: kColorsRed500)),
+                            ),
+                          ],
+                        ),
+                        DataRow(
+                          cells: [
+                            DataCell(
+                                Text('Consignee', style: kTextDarkBoldBase)),
+                            DataCell(
+                              consignee.text != ''
+                                  ? Text(consignee.text)
+                                  : Text('UNDEFINED',
+                                      style: TextStyle(color: kColorsRed500)),
+                            ),
+                          ],
+                        ),
+                        DataRow(
+                          cells: [
+                            DataCell(
+                                Text('Entry Date', style: kTextDarkBoldBase)),
+                            DataCell(
+                              date.text != ''
+                                  ? Text(date.text)
+                                  : Text('UNDEFINED',
+                                      style: TextStyle(color: kColorsRed500)),
+                            ),
+                          ],
+                        ),
+                        DataRow(
+                          cells: [
+                            DataCell(
+                                Text('Entry Time', style: kTextDarkBoldBase)),
+                            DataCell(
+                              entryTime.text != ''
+                                  ? Text(entryTime.text)
+                                  : Text('UNDEFINED',
+                                      style: TextStyle(color: kColorsRed500)),
+                            ),
+                          ],
+                        ),
+                        DataRow(
+                          cells: [
+                            DataCell(Text('Shift', style: kTextDarkBoldBase)),
+                            DataCell(
+                              Text(shiftValue!.key),
+                            ),
+                          ],
+                        ),
+                        DataRow(
+                          cells: [
+                            DataCell(Text('Truck', style: kTextDarkBoldBase)),
+                            DataCell(
+                              nopol.text != ''
+                                  ? Text(nopol.text)
+                                  : Text('UNDEFINED',
+                                      style: TextStyle(color: kColorsRed500)),
+                            ),
+                          ],
+                        ),
+                        DataRow(
+                          cells: [
+                            DataCell(
+                                Text('Empty Weight', style: kTextDarkBoldBase)),
+                            DataCell(
+                              weight_empty.text != '0'
+                                  ? Text(weight_empty.text)
+                                  : Text('UNDEFINED',
+                                      style: TextStyle(color: kColorsRed500)),
+                            ),
+                          ],
+                        ),
+                        DataRow(
+                          cells: [
+                            DataCell(Text('Fulfilled Weight',
+                                style: kTextDarkBoldBase)),
+                            DataCell(
+                              weight_full.text != '0'
+                                  ? Text(weight_full.text)
+                                  : Text('UNDEFINED',
+                                      style: TextStyle(color: kColorsRed500)),
+                            ),
+                          ],
+                        ),
+                        DataRow(
+                          cells: [
+                            DataCell(
+                                Text('Net Weight', style: kTextDarkBoldBase)),
+                            DataCell(
+                              net_weight.text != 'Undefined'
+                                  ? Text(net_weight.text)
+                                  : Text('UNDEFINED',
+                                      style: TextStyle(color: kColorsRed500)),
+                            ),
+                          ],
+                        ),
+                        DataRow(
+                          cells: [
+                            DataCell(
+                                Text('Warehouse', style: kTextDarkBoldBase)),
+                            DataCell(
+                              warehouse.text != ''
+                                  ? Text(warehouse.text)
+                                  : Text('UNDEFINED',
+                                      style: TextStyle(color: kColorsRed500)),
+                            ),
+                          ],
+                        ),
+                        DataRow(
+                          cells: [
+                            DataCell(Text('Palka', style: kTextDarkBoldBase)),
+                            DataCell(Text(palkaValue!.key)),
+                          ],
+                        ),
+                        DataRow(
+                          cells: [
+                            DataCell(Text('Grabber', style: kTextDarkBoldBase)),
+                            DataCell(Text(grabberValue!.key)),
+                          ],
+                        ),
+                        DataRow(
+                          cells: [
+                            DataCell(Text('Crane', style: kTextDarkBoldBase)),
+                            DataCell(Text(craneValue!.key)),
+                          ],
+                        ),
+                        DataRow(
+                          cells: [
+                            DataCell(
+                                Text('Entry Date', style: kTextDarkBoldBase)),
+                            DataCell(
+                              date.text != ''
+                                  ? Text(date.text)
+                                  : Text('UNDEFINED',
+                                      style: TextStyle(color: kColorsRed500)),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  )
+                ],
+              ),
             ),
           ),
         ),
@@ -541,6 +650,7 @@ class _CreateLoadState extends State<CreateLoad> {
 
   void initValue() {
     //Form Init
+    note.text = "Tidak ada";
     date.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
     entryTime.text = DateFormat('HH:mm:ss').format(DateTime.now());
     exitTime.text = DateFormat('HH:mm:ss').format(DateTime.now());
@@ -559,7 +669,7 @@ class _CreateLoadState extends State<CreateLoad> {
     this.grabberValue = itemsGrabber[0];
     this.craneValue = itemsCrane[0];
 
-    this.net_weight.text = 'Undefined';
+    this.net_weight.text = '0';
     this.weight_empty.text = '0';
     this.weight_full.text = '0';
   }

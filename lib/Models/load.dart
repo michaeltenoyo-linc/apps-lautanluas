@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter/material.dart';
 
@@ -9,12 +10,12 @@ class ModelLoad {
   final double net_weight;
   final String warehouse;
   final String carrier;
+  final String consignee;
   final int palka;
-  final double weight;
   final DateTime date;
   final int shift;
-  final TimeOfDay truck_in;
-  final TimeOfDay truck_out;
+  final DateTime truck_in;
+  final DateTime truck_out;
   final String grabber;
   final String crane;
   final String note;
@@ -27,8 +28,8 @@ class ModelLoad {
     required this.net_weight,
     required this.warehouse,
     required this.carrier,
+    required this.consignee,
     required this.palka,
-    required this.weight,
     required this.date,
     required this.shift,
     required this.truck_in,
@@ -39,30 +40,32 @@ class ModelLoad {
   });
 }
 
-//Dummy Data
-class LoadFakerData {
-  static final faker = Faker();
-  static final List<ModelLoad> loads = List.generate(
-      50,
-      (index) => ModelLoad(
-            id: faker.vehicle.vin(),
-            nopol: faker.vehicle.vin(),
-            weight_empty:
-                faker.randomGenerator.integer(15000, min: 10000).toDouble(),
-            weight_full:
-                faker.randomGenerator.integer(50000, min: 45000).toDouble(),
-            net_weight:
-                faker.randomGenerator.integer(40000, min: 35000).toDouble(),
-            warehouse: faker.company.name(),
-            carrier: faker.vehicle.model(),
-            palka: faker.randomGenerator.integer(5, min: 1),
-            weight: faker.randomGenerator.integer(40000, min: 35000).toDouble(),
-            date: faker.date.dateTime(),
-            shift: faker.randomGenerator.integer(3, min: 1),
-            truck_in: TimeOfDay.fromDateTime(faker.date.dateTime()),
-            truck_out: TimeOfDay.fromDateTime(faker.date.dateTime()),
-            grabber: 'ltl-ves 01',
-            crane: 'kapal',
-            note: 'None',
-          ));
+//CRUD
+Future createLoad({required ModelLoad data}) async {
+  try {
+    final docTruck = FirebaseFirestore.instance.collection('loads').doc();
+
+    final json = {
+      'nopol': data.nopol,
+      'carrier': data.carrier,
+      'truck_in': data.truck_in,
+      'truck_out': data.truck_out,
+      'date': data.date,
+      'weight_empty': data.weight_empty,
+      'weight_full': data.weight_full,
+      'net_weight': data.net_weight,
+      'warehouse': data.warehouse,
+      'palka': data.palka,
+      'shift': data.shift,
+      'grabber': data.grabber,
+      'crane': data.crane,
+      'note': data.note,
+    };
+
+    await docTruck.set(json);
+    return true;
+  } catch (e) {
+    print(e.toString());
+    return false;
+  }
 }
