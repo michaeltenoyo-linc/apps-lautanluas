@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:ltl_bulk/Screens/Consignee/consignee.dart';
 import 'package:ltl_bulk/Screens/Global/widgets/widgets.dart';
 import 'package:ltl_bulk/Screens/Homepage/homepage-screens.dart';
 import 'package:ltl_bulk/Screens/Truck/truck-screens.dart';
@@ -151,6 +152,9 @@ class _DashboardState extends State<Dashboard> {
         break;
       case DrawerItems.warehouse:
         return Warehouse(openDrawer: openDrawer);
+        break;
+      case DrawerItems.consignee:
+        return Consignee(openDrawer: openDrawer);
         break;
       case DrawerItems.home:
       default:

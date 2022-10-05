@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:ltl_bulk/Models/warehouse.dart';
+import 'package:ltl_bulk/Models/Consignee.dart';
 import 'package:ltl_bulk/Screens/Auth/widgets/welcome-background.dart';
 import 'package:ltl_bulk/Screens/Global/widgets/widgets.dart';
 import 'package:ltl_bulk/Shared/colors.dart';
 import 'package:ltl_bulk/Shared/fonts.dart';
 import 'package:sweetalertv2/sweetalertv2.dart';
 
-class Warehouse extends StatefulWidget {
-  const Warehouse({
+class Consignee extends StatefulWidget {
+  const Consignee({
     super.key,
     required this.openDrawer,
   });
@@ -18,13 +18,12 @@ class Warehouse extends StatefulWidget {
   final VoidCallback openDrawer;
 
   @override
-  State<Warehouse> createState() => _WarehouseState();
+  State<Consignee> createState() => _ConsigneeState();
 }
 
-class _WarehouseState extends State<Warehouse> {
-  final _formWarehouse = GlobalKey<FormState>();
+class _ConsigneeState extends State<Consignee> {
+  final _formConsignee = GlobalKey<FormState>();
   final TextEditingController name = TextEditingController();
-  final TextEditingController address = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -34,13 +33,13 @@ class _WarehouseState extends State<Warehouse> {
       appBar: DashboardAppBar(
         size: size,
         openDrawer: widget.openDrawer,
-        title: 'Warehouse',
+        title: 'Consignee',
       ),
       backgroundColor: Colors.transparent,
       body: Stack(
         children: [
           WelcomeBackground(
-              assetUrl: 'assets/images/backgrounds/warehouse-master.png'),
+              assetUrl: 'assets/images/backgrounds/consignee-master.png'),
           Center(
             child: Container(
               height: size.height * 0.8,
@@ -53,7 +52,7 @@ class _WarehouseState extends State<Warehouse> {
                     color: kLightColor,
                     padding: EdgeInsets.all(25.0),
                     child: SingleChildScrollView(
-                        child: streamWarehouseFirestoreDatatable(context)),
+                        child: streamConsigneeFirestoreDatatable(context)),
                   ),
                 ),
               ),
@@ -73,9 +72,9 @@ class _WarehouseState extends State<Warehouse> {
                       builder: (BuildContext context) {
                         return AlertDialog(
                           scrollable: true,
-                          title: Text('New Warehouse'),
+                          title: Text('New Consignee'),
                           content: Form(
-                            key: _formWarehouse,
+                            key: _formConsignee,
                             child: Column(children: [
                               TextFormField(
                                 validator: (value) {
@@ -86,23 +85,9 @@ class _WarehouseState extends State<Warehouse> {
                                 },
                                 controller: name,
                                 decoration: InputDecoration(
-                                  labelText: 'Warehouse Name',
-                                  hintText: "Please input warehouse name",
-                                  icon: Icon(FontAwesomeIcons.warehouse),
-                                ),
-                              ),
-                              TextFormField(
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Please enter the right value.';
-                                  }
-                                  return null;
-                                },
-                                controller: address,
-                                decoration: InputDecoration(
-                                  labelText: 'Location Address',
-                                  hintText: "Please input warehouse's location",
-                                  icon: Icon(FontAwesomeIcons.locationDot),
+                                  labelText: 'Consignee Name',
+                                  hintText: "Please input consignee's name",
+                                  icon: Icon(FontAwesomeIcons.userGroup),
                                 ),
                               ),
                               SizedBox(
@@ -110,11 +95,11 @@ class _WarehouseState extends State<Warehouse> {
                               ),
                               ElevatedButton(
                                   onPressed: () {
-                                    if (_formWarehouse.currentState!
+                                    if (_formConsignee.currentState!
                                         .validate()) {
                                       SweetAlertV2.show(context,
                                           subtitle:
-                                              "Do you want to save new warehouse ?",
+                                              "Do you want to save new Consignee ?",
                                           style: SweetAlertV2Style.confirm,
                                           showCancelButton: true,
                                           onPress: (bool isConfirm) {
@@ -123,23 +108,21 @@ class _WarehouseState extends State<Warehouse> {
                                               new Duration(seconds: 0),
                                               () async {
                                             //async function
-                                            final warehouse = ModelWarehouse(
+                                            final Consignee = ModelConsignee(
                                               name: name.text,
-                                              address: address.text,
                                               id: 'auto',
                                             );
 
-                                            bool result = await createWarehouse(
-                                                data: warehouse);
+                                            bool result = await createConsignee(
+                                                data: Consignee);
 
                                             name.clear();
-                                            address.clear();
 
                                             if (result) {
                                               ScaffoldMessenger.of(context)
                                                   .showSnackBar(SnackBar(
                                                 content: Text(
-                                                    'Success! New warehouse has been saved.'),
+                                                    'Success! New Consignee has been saved.'),
                                                 duration: Duration(
                                                     milliseconds: 2000),
                                               ));

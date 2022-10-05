@@ -5,51 +5,30 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:ltl_bulk/Shared/colors.dart';
 import 'package:sweetalertv2/sweetalertv2.dart';
 
-class ModelTruck {
-  final String nopol;
-  final String type;
+class ModelConsignee {
+  final String id;
+  final String name;
   final bool enabled;
 
-  ModelTruck({
-    required this.nopol,
-    required this.type,
+  ModelConsignee({
+    required this.id,
+    required this.name,
     this.enabled = true,
   });
 }
 
-//Suggestion Dummy Data
-class TruckFakerData {
-  static final faker = Faker();
-  static final List<ModelTruck> trucks = List.generate(
-      50,
-      (index) => ModelTruck(
-            nopol: faker.vehicle.vin(),
-            type: faker.vehicle.model(),
-          ));
-
-  static List<ModelTruck> getSuggestions(String query) =>
-      List.of(trucks).where((truck) {
-        final truckLower = truck.nopol.toLowerCase();
-        final queryLower = query.toLowerCase();
-
-        return truckLower.contains(queryLower);
-      }).toList();
-
-  static List<ModelTruck> getAllData() => List.of(trucks).toList();
-}
-
 //CRUD
-Future createTruck({required ModelTruck data}) async {
+Future createConsignee({required ModelConsignee data}) async {
   try {
-    final docTruck =
-        FirebaseFirestore.instance.collection('trucks').doc(data.nopol);
+    final docConsignee =
+        FirebaseFirestore.instance.collection('consignees').doc();
 
     final json = {
-      'type': data.type,
+      'name': data.name,
       'enabled': data.enabled,
     };
 
-    await docTruck.set(json);
+    await docConsignee.set(json);
     return true;
   } catch (e) {
     print(e.toString());
@@ -57,16 +36,16 @@ Future createTruck({required ModelTruck data}) async {
   }
 }
 
-Future updateTruck({required ModelTruck data}) async {
+Future updateConsignee({required ModelConsignee data}) async {
   try {
-    final docTruck =
-        FirebaseFirestore.instance.collection('trucks').doc(data.nopol);
+    final docConsignee =
+        FirebaseFirestore.instance.collection('consignees').doc(data.id);
 
     final json = {
-      'type': data.type,
+      'name': data.name,
     };
 
-    await docTruck.update(json);
+    await docConsignee.update(json);
 
     return true;
   } catch (e) {
@@ -75,16 +54,16 @@ Future updateTruck({required ModelTruck data}) async {
   }
 }
 
-Future toggleTruckEnabled({required ModelTruck data}) async {
+Future toggleConsigneeEnabled({required ModelConsignee data}) async {
   try {
-    final docTruck =
-        FirebaseFirestore.instance.collection('trucks').doc(data.nopol);
+    final docConsignee =
+        FirebaseFirestore.instance.collection('consignees').doc(data.id);
 
     final json = {
       'enabled': data.enabled == true ? false : true,
     };
 
-    await docTruck.update(json);
+    await docConsignee.update(json);
 
     return true;
   } catch (e) {
@@ -93,12 +72,12 @@ Future toggleTruckEnabled({required ModelTruck data}) async {
   }
 }
 
-Future deleteTruck({required ModelTruck data}) async {
+Future deleteConsignee({required ModelConsignee data}) async {
   try {
-    final docTruck =
-        FirebaseFirestore.instance.collection('trucks').doc(data.nopol);
+    final docConsignee =
+        FirebaseFirestore.instance.collection('consignees').doc(data.id);
 
-    await docTruck.delete();
+    await docConsignee.delete();
     return true;
   } catch (e) {
     print(e.toString());
@@ -108,21 +87,21 @@ Future deleteTruck({required ModelTruck data}) async {
 //END CRUD
 
 //BUILD DATATABLE FROM FIREBASE STREAM READ
-ModelTruck _fromFirestore(DocumentSnapshot snapshot) {
-  return ModelTruck(
-      nopol: snapshot.id, type: snapshot['type'], enabled: snapshot['enabled']);
+ModelConsignee _fromFirestore(DocumentSnapshot snapshot) {
+  return ModelConsignee(
+      id: snapshot.id, name: snapshot['name'], enabled: snapshot['enabled']);
 }
 
-Widget streamTruckFirestoreDatatable(BuildContext context) {
+Widget streamConsigneeFirestoreDatatable(BuildContext context) {
   return StreamBuilder<QuerySnapshot>(
-    stream: FirebaseFirestore.instance.collection('trucks').snapshots(),
+    stream: FirebaseFirestore.instance.collection('consignees').snapshots(),
     builder: (context, snapshot) {
       if (!snapshot.hasData) return LinearProgressIndicator();
 
       return DataTable(
         columns: [
-          DataColumn(label: Text('Vehicle Number')),
-          DataColumn(label: Text('Type')),
+          DataColumn(label: Text('Firestore ID')),
+          DataColumn(label: Text('Consignee')),
           DataColumn(label: Text('')),
         ],
         rows: _buildList(context, snapshot.data!.docs),
@@ -137,21 +116,21 @@ List<DataRow> _buildList(
 }
 
 DataRow _buildListItem(BuildContext context, DocumentSnapshot data) {
-  final truck = _fromFirestore(data);
+  final consignee = _fromFirestore(data);
 
   return DataRow(cells: [
-    DataCell(Text(truck.nopol)),
-    DataCell(Text(truck.type)),
+    DataCell(Text(consignee.id)),
+    DataCell(Text(consignee.name)),
     DataCell(Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        truck.enabled == true
+        consignee.enabled == true
             ? ElevatedButton(
                 style:
                     ElevatedButton.styleFrom(backgroundColor: kColorsGreen500),
                 child: Icon(FontAwesomeIcons.check),
                 onPressed: () async {
-                  await toggleTruckEnabled(data: truck);
+                  await toggleConsigneeEnabled(data: consignee);
                 },
               )
             : ElevatedButton(
@@ -159,7 +138,7 @@ DataRow _buildListItem(BuildContext context, DocumentSnapshot data) {
                     ElevatedButton.styleFrom(backgroundColor: kColorsGrey800),
                 child: Icon(FontAwesomeIcons.ban),
                 onPressed: () async {
-                  await toggleTruckEnabled(data: truck);
+                  await toggleConsigneeEnabled(data: consignee);
                 },
               ),
         ElevatedButton(
@@ -167,19 +146,19 @@ DataRow _buildListItem(BuildContext context, DocumentSnapshot data) {
           child: Icon(FontAwesomeIcons.penToSquare),
           onPressed: () async {
             final _formUpdate = GlobalKey<FormState>();
-            final TextEditingController type = TextEditingController();
-            final TextEditingController nopol = TextEditingController();
+            final TextEditingController id = TextEditingController();
+            final TextEditingController name = TextEditingController();
 
             //initial value
-            nopol.text = truck.nopol;
-            type.text = truck.type;
+            id.text = consignee.id;
+            name.text = consignee.name;
 
             showDialog(
                 context: context,
                 builder: (BuildContext ctx) {
                   return AlertDialog(
                     scrollable: true,
-                    title: Text('Edit Truck'),
+                    title: Text('Edit consignee'),
                     content: Form(
                       key: _formUpdate,
                       child: Column(children: [
@@ -190,10 +169,10 @@ DataRow _buildListItem(BuildContext context, DocumentSnapshot data) {
                             }
                             return null;
                           },
-                          controller: nopol,
+                          controller: id,
                           decoration: InputDecoration(
-                            labelText: 'Vehicle Number',
-                            hintText: "Please input truck's id",
+                            labelText: 'Consignee ID',
+                            hintText: "Please input consignee's id",
                             icon: Icon(FontAwesomeIcons.barcode),
                           ),
                           readOnly: true,
@@ -205,11 +184,11 @@ DataRow _buildListItem(BuildContext context, DocumentSnapshot data) {
                             }
                             return null;
                           },
-                          controller: type,
+                          controller: name,
                           decoration: InputDecoration(
-                            labelText: 'Vehicle Type',
-                            hintText: "Please input truck's type",
-                            icon: Icon(FontAwesomeIcons.truck),
+                            labelText: 'Consignee Name',
+                            hintText: "Please input consignee's name",
+                            icon: Icon(FontAwesomeIcons.userGroup),
                           ),
                         ),
                         SizedBox(
@@ -227,22 +206,22 @@ DataRow _buildListItem(BuildContext context, DocumentSnapshot data) {
                                   new Future.delayed(new Duration(seconds: 0),
                                       () async {
                                     //async function
-                                    final truck = ModelTruck(
-                                      nopol: nopol.text,
-                                      type: type.text,
+                                    final consignee = ModelConsignee(
+                                      id: id.text,
+                                      name: name.text,
                                     );
 
                                     bool result =
-                                        await updateTruck(data: truck);
+                                        await updateConsignee(data: consignee);
 
-                                    nopol.clear();
-                                    type.clear();
+                                    id.clear();
+                                    name.clear();
 
                                     if (result) {
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(SnackBar(
                                         content: Text(
-                                            'Success! Update truck has been saved.'),
+                                            'Success! Update consignee has been saved.'),
                                         duration: Duration(milliseconds: 2000),
                                       ));
                                     } else {
@@ -274,12 +253,12 @@ DataRow _buildListItem(BuildContext context, DocumentSnapshot data) {
           child: Icon(FontAwesomeIcons.trash),
           onPressed: () {
             SweetAlertV2.show(context,
-                subtitle: "Do you want to delete this truck ?",
+                subtitle: "Do you want to delete this consignee ?",
                 style: SweetAlertV2Style.confirm,
                 showCancelButton: true, onPress: (bool isConfirm) {
               if (isConfirm) {
                 new Future.delayed(new Duration(seconds: 0), () async {
-                  await deleteTruck(data: truck);
+                  await deleteConsignee(data: consignee);
                 });
               }
 
