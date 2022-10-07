@@ -10,11 +10,13 @@ class InputDropdown extends StatelessWidget {
     required this.value,
     required this.items,
     required this.onChanged,
+    this.hintLabel = "Please choose an item",
   });
 
   final DropdownKeyValue? value;
   final List<DropdownKeyValue> items;
   final dynamic Function(DropdownKeyValue?) onChanged;
+  final String hintLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +31,7 @@ class InputDropdown extends StatelessWidget {
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<DropdownKeyValue>(
-          hint: Text('Shift'),
+          hint: Text(hintLabel),
           value: this.value,
           isExpanded: true,
           items: items.map(buildMenuItem).toList(),

@@ -5,6 +5,7 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:ltl_bulk/Screens/Consignee/consignee.dart';
 import 'package:ltl_bulk/Screens/Global/widgets/widgets.dart';
 import 'package:ltl_bulk/Screens/Homepage/homepage-screens.dart';
+import 'package:ltl_bulk/Screens/Load/load-screens.dart';
 import 'package:ltl_bulk/Screens/Truck/truck-screens.dart';
 import 'package:ltl_bulk/Screens/Warehouse/warehouse-screens.dart';
 import 'package:ltl_bulk/Services/firebase-auth.dart';
@@ -63,6 +64,9 @@ class _DashboardState extends State<Dashboard> {
             break;
           case 'report':
             this.item = DrawerItems.report;
+            break;
+          case 'load':
+            this.item = DrawerItems.load;
             break;
           default:
             isHomepage = true;
@@ -155,6 +159,9 @@ class _DashboardState extends State<Dashboard> {
         break;
       case DrawerItems.consignee:
         return Consignee(openDrawer: openDrawer);
+        break;
+      case DrawerItems.load:
+        return MasterLoad(openDrawer: openDrawer);
         break;
       case DrawerItems.home:
       default:

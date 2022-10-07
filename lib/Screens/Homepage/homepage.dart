@@ -141,7 +141,9 @@ class Homepage extends StatelessWidget {
                               size: size.width * 0.035,
                               color: kDarkColor,
                             ),
-                            onTap: () {},
+                            onTap: () {
+                              this.dashboardNavigation('load');
+                            },
                             text: "Shipments",
                           ),
                           HomepageFooterItem(

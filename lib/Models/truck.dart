@@ -17,7 +17,7 @@ class ModelTruck {
   });
 }
 
-//Suggestion Dummy Data
+//READ
 class TruckFakerData {
   static final faker = Faker();
   static final List<ModelTruck> trucks = List.generate(
