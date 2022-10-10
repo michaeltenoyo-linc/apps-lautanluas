@@ -150,9 +150,9 @@ class _CreateLoadState extends State<CreateLoad> {
                                   final truck = ModelLoad(
                                     id: 'auto',
                                     carrier: carrier.text,
-                                    truck_in: DateFormat("HH:mm:ss")
+                                    truck_in: DateFormat("yyyy-MM-dd HH:mm")
                                         .parse(entryTime.text),
-                                    truck_out: DateFormat("HH:mm:ss")
+                                    truck_out: DateFormat("yyyy-MM-dd HH:mm")
                                         .parse(exitTime.text),
                                     date: DateFormat("yyyy-MM-dd")
                                         .parse(date.text),
@@ -200,7 +200,7 @@ class _CreateLoadState extends State<CreateLoad> {
                           } else {
                             setState(() {
                               if (isLastPage)
-                                exitTime.text = DateFormat('HH:mm:ss')
+                                exitTime.text = DateFormat('yyyy-MM-dd HH:mm')
                                     .format(DateTime.now());
                               currentStep += 1;
                             });
@@ -213,8 +213,8 @@ class _CreateLoadState extends State<CreateLoad> {
                               currentStep == getSteps().length - 2;
 
                           if (isLastPage)
-                            exitTime.text =
-                                DateFormat('HH:mm:ss').format(DateTime.now());
+                            exitTime.text = DateFormat('yyyy-MM-dd HH:mm')
+                                .format(DateTime.now());
                           currentStep = step;
                         }
                       }),
@@ -309,9 +309,9 @@ class _CreateLoadState extends State<CreateLoad> {
                 SizedBox(
                   height: 20,
                 ),
-                InputTime(
+                InputDateTime(
                     time: entryTime,
-                    label: 'Entry Time',
+                    label: 'Truck In',
                     context: context,
                     onChanged: (String value) {
                       setState(() {
@@ -339,43 +339,51 @@ class _CreateLoadState extends State<CreateLoad> {
           title: Text('Truck'),
           content: Form(
             key: _formLoad[1],
-            child: Column(children: [
-              InputTruckTypeAhead(nopol: nopol),
-              SizedBox(
-                height: 20,
-              ),
-              Focus(
-                onFocusChange: (value) {
-                  onUpdateNetWeight();
-                },
-                child: InputNumber(
-                  controller: weight_empty,
-                  icon: Icon(FontAwesomeIcons.scaleBalanced),
-                  hintText: 'Please fill in when truck is empty',
-                  label: 'Empty Weight (KG)',
+            child: Container(
+              child: Column(children: [
+                InputTruckTypeAhead(nopol: nopol),
+                SizedBox(
+                  height: 20,
+                ),
+                Focus(
+                  onFocusChange: (value) {
+                    onUpdateNetWeight();
+                  },
+                  child: InputNumber(
+                    controller: weight_empty,
+                    icon: Icon(FontAwesomeIcons.scaleBalanced),
+                    hintText: 'Please fill in when truck is empty',
+                    label: 'Empty Weight (KG)',
+                    inputAction: TextInputAction.next,
+                  ),
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+                Focus(
+                  onFocusChange: (value) {
+                    onUpdateNetWeight();
+                  },
+                  child: InputNumber(
+                    controller: weight_full,
+                    icon: Icon(FontAwesomeIcons.scaleBalanced),
+                    hintText: 'Please fill in when truck is full',
+                    label: 'Filled Weight (KG)',
+                    inputAction: TextInputAction.done,
+                  ),
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+                InputNumber(
+                  controller: net_weight,
+                  icon: Icon(FontAwesomeIcons.weightScale),
                   inputAction: TextInputAction.next,
-                ),
-              ),
-              Focus(
-                onFocusChange: (value) {
-                  onUpdateNetWeight();
-                },
-                child: InputNumber(
-                  controller: weight_full,
-                  icon: Icon(FontAwesomeIcons.scaleBalanced),
-                  hintText: 'Please fill in when truck is full',
-                  label: 'Filled Weight (KG)',
-                  inputAction: TextInputAction.done,
-                ),
-              ),
-              InputNumber(
-                controller: net_weight,
-                icon: Icon(FontAwesomeIcons.weightScale),
-                inputAction: TextInputAction.next,
-                label: 'Net Weight (KG)',
-                readOnly: true,
-              )
-            ]),
+                  label: 'Net Weight (KG)',
+                  readOnly: true,
+                )
+              ]),
+            ),
           ),
         ),
         Step(
@@ -441,13 +449,13 @@ class _CreateLoadState extends State<CreateLoad> {
             child: Container(
               child: Column(
                 children: [
-                  InputTime(
+                  InputDateTime(
                       time: exitTime,
                       label: 'Exit Time',
                       context: context,
                       onChanged: (String value) {
                         setState(() {
-                          entryTime.text =
+                          exitTime.text =
                               value; //set output date to TextField value.
                         });
                       }),
@@ -652,8 +660,8 @@ class _CreateLoadState extends State<CreateLoad> {
     //Form Init
     note.text = "Tidak ada";
     date.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
-    entryTime.text = DateFormat('HH:mm:ss').format(DateTime.now());
-    exitTime.text = DateFormat('HH:mm:ss').format(DateTime.now());
+    entryTime.text = DateFormat('yyyy-MM-dd HH:mm').format(DateTime.now());
+    exitTime.text = DateFormat('yyyy-MM-dd HH:mm').format(DateTime.now());
     //Init Shift and Time
     if (isCurrentTimeBetween(
         [TimeOfDay(hour: 8, minute: 0), TimeOfDay(hour: 15, minute: 59)])) {

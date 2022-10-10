@@ -5,3 +5,4 @@ export 'input-date.dart';
 export 'input-dropdown.dart';
 export 'input-time.dart';
 export 'input-truck-typeahead.dart';
+export 'input-date-time.dart';

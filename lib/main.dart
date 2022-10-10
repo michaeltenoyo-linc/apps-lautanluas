@@ -19,9 +19,13 @@ import 'package:ltl_bulk/Screens/Load/load-screens.dart';
 import 'package:ltl_bulk/Screens/Global/global-screens.dart';
 import 'package:ltl_bulk/welcome-wrapper.dart';
 
+import 'firebase_options.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(MyApp());
 }
 
