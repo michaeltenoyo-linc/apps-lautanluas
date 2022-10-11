@@ -292,6 +292,10 @@ class _CreateLoadState extends State<CreateLoad> {
                 SizedBox(
                   height: 20,
                 ),
+                InputTruckTypeAhead(nopol: nopol),
+                SizedBox(
+                  height: 20,
+                ),
                 InputConsigneeTypeAhead(name: consignee),
                 SizedBox(
                   height: 20,
@@ -336,15 +340,11 @@ class _CreateLoadState extends State<CreateLoad> {
         Step(
           state: currentStep > 1 ? StepState.complete : StepState.indexed,
           isActive: currentStep >= 1,
-          title: Text('Truck'),
+          title: Text('Tonnage'),
           content: Form(
             key: _formLoad[1],
             child: Container(
               child: Column(children: [
-                InputTruckTypeAhead(nopol: nopol),
-                SizedBox(
-                  height: 20,
-                ),
                 Focus(
                   onFocusChange: (value) {
                     onUpdateNetWeight();
@@ -389,7 +389,7 @@ class _CreateLoadState extends State<CreateLoad> {
         Step(
           state: currentStep > 2 ? StepState.complete : StepState.indexed,
           isActive: currentStep >= 2,
-          title: Text('Tonnage'),
+          title: Text('Utility'),
           content: Form(
             key: _formLoad[2],
             child: Container(
