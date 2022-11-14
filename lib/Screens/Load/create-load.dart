@@ -149,6 +149,7 @@ class _CreateLoadState extends State<CreateLoad> {
                                   //Save Data
                                   final truck = ModelLoad(
                                     id: 'auto',
+                                    group: 'surabaya',
                                     carrier: carrier.text,
                                     truck_in: DateFormat("yyyy-MM-dd HH:mm")
                                         .parse(entryTime.text),

@@ -70,6 +70,8 @@ class DrawerItems {
   static const load = DrawerItem(title: 'Load', icon: FontAwesomeIcons.ship);
   static const logout =
       DrawerItem(title: 'Logout', icon: FontAwesomeIcons.rightFromBracket);
+  static const group =
+      DrawerItem(title: 'Group', icon: FontAwesomeIcons.peopleGroup);
 
   static final List<DrawerItem> menus = [
     home,

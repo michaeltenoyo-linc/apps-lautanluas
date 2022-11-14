@@ -4,6 +4,7 @@ import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:ltl_bulk/Screens/Consignee/consignee.dart';
 import 'package:ltl_bulk/Screens/Global/widgets/widgets.dart';
+import 'package:ltl_bulk/Screens/Group/group.dart';
 import 'package:ltl_bulk/Screens/Homepage/homepage-screens.dart';
 import 'package:ltl_bulk/Screens/Load/load-screens.dart';
 import 'package:ltl_bulk/Screens/Truck/truck-screens.dart';
@@ -67,6 +68,9 @@ class _DashboardState extends State<Dashboard> {
             break;
           case 'load':
             this.item = DrawerItems.load;
+            break;
+          case 'group':
+            this.item = DrawerItems.group;
             break;
           default:
             isHomepage = true;
@@ -163,6 +167,8 @@ class _DashboardState extends State<Dashboard> {
       case DrawerItems.load:
         return MasterLoad(openDrawer: openDrawer);
         break;
+      case DrawerItems.group:
+        return Group(openDrawer: openDrawer);
       case DrawerItems.home:
       default:
         return Homepage(

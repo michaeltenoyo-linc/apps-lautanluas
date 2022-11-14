@@ -29,11 +29,11 @@ class _InputWarehouseTypeAheadState extends State<InputWarehouseTypeAhead> {
   Future getDocs() async {
     search = (await _searchService.getSearch()).map((item) {
       return ModelWarehouse(
-        id: item.id,
-        name: item.get('name'),
-        address: item.get('address'),
-        enabled: item.get('enabled'),
-      );
+          id: item.id,
+          name: item.get('name'),
+          address: item.get('address'),
+          enabled: item.get('enabled'),
+          group: item.get('group'));
     }).toList();
   }
 

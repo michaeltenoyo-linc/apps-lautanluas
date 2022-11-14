@@ -25,6 +25,7 @@ class ModelLoad {
   final String grabber;
   final String crane;
   final String note;
+  final String group;
 
   ModelLoad({
     required this.id,
@@ -43,6 +44,7 @@ class ModelLoad {
     required this.grabber,
     required this.crane,
     required this.note,
+    required this.group,
   });
 }
 
@@ -67,6 +69,7 @@ Future createLoad({required ModelLoad data}) async {
       'crane': data.crane,
       'note': data.note,
       'consignee': data.consignee,
+      'group': data.group,
     };
 
     await docTruck.set(json);
@@ -97,6 +100,7 @@ Future updateLoad({required ModelLoad data}) async {
       'crane': data.crane,
       'note': data.note,
       'consignee': data.consignee,
+      'group': data.group,
     };
 
     await docLoad.update(json);
@@ -141,6 +145,7 @@ ModelLoad _fromFirestore(DocumentSnapshot snapshot) {
     crane: snapshot['crane'],
     note: snapshot['note'],
     consignee: snapshot['consignee'],
+    group: snapshot['group'],
   );
 }
 

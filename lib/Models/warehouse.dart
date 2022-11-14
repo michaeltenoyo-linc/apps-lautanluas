@@ -12,11 +12,13 @@ class ModelWarehouse {
   final String name;
   final String address;
   final bool enabled;
+  final String group;
 
   ModelWarehouse({
     required this.id,
     required this.name,
     required this.address,
+    required this.group,
     this.enabled = true,
   });
 }
@@ -30,6 +32,7 @@ class WarehouseFakerData {
             id: faker.randomGenerator.integer(1000).toString(),
             name: faker.company.name(),
             address: faker.company.position(),
+            group: faker.company.name(),
           ));
 
   static List<ModelWarehouse> getSuggestions(String query) =>
@@ -61,6 +64,7 @@ Future createWarehouse({required ModelWarehouse data}) async {
       'name': data.name,
       'address': data.address,
       'enabled': data.enabled,
+      'group': data.group,
     };
 
     await docWarehouse.set(json);
@@ -79,6 +83,7 @@ Future updateWarehouse({required ModelWarehouse data}) async {
     final json = {
       'name': data.name,
       'address': data.address,
+      'group': data.group,
     };
 
     await docWarehouse.update(json);
@@ -128,6 +133,7 @@ ModelWarehouse _fromFirestore(DocumentSnapshot snapshot) {
       id: snapshot.id,
       name: snapshot['name'],
       address: snapshot['address'],
+      group: snapshot['group'],
       enabled: snapshot['enabled']);
 }
 
@@ -140,6 +146,7 @@ Widget streamWarehouseFirestoreDatatable(BuildContext context) {
       return DataTable(
         columns: [
           DataColumn(label: Text('Warehouse Name')),
+          DataColumn(label: Text('Group')),
           DataColumn(label: Text('Address')),
           DataColumn(label: Text('')),
         ],
@@ -187,6 +194,7 @@ DataRow _buildListItem(BuildContext context, DocumentSnapshot data) {
             final _formUpdate = GlobalKey<FormState>();
             final TextEditingController id = TextEditingController();
             final TextEditingController name = TextEditingController();
+            final TextEditingController group = TextEditingController();
             final TextEditingController address = TextEditingController();
 
             //initial value
@@ -215,6 +223,21 @@ DataRow _buildListItem(BuildContext context, DocumentSnapshot data) {
                             labelText: 'Warehouse ID',
                             hintText: "Please input warehouse's name",
                             icon: Icon(FontAwesomeIcons.barcode),
+                          ),
+                          readOnly: true,
+                        ),
+                        TextFormField(
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter the right value.';
+                            }
+                            return null;
+                          },
+                          controller: group,
+                          decoration: InputDecoration(
+                            labelText: 'Warehouse Groups',
+                            hintText: "Please input warehouse's group",
+                            icon: Icon(FontAwesomeIcons.peopleGroup),
                           ),
                           readOnly: true,
                         ),
@@ -265,6 +288,7 @@ DataRow _buildListItem(BuildContext context, DocumentSnapshot data) {
                                       id: id.text,
                                       name: name.text,
                                       address: address.text,
+                                      group: group.text,
                                     );
 
                                     bool result =

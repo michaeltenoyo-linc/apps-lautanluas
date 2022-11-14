@@ -26,6 +26,21 @@ class _WarehouseState extends State<Warehouse> {
   final TextEditingController name = TextEditingController();
   final TextEditingController address = TextEditingController();
 
+  final List<DropdownKeyValue> itemsGroup = <DropdownKeyValue>[
+    DropdownKeyValue('surabaya', 'Surabaya'),
+    DropdownKeyValue('jakarta', 'Jakarta'),
+  ];
+
+  late DropdownKeyValue? groupValue;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    this.groupValue = itemsGroup[0];
+  }
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -91,6 +106,13 @@ class _WarehouseState extends State<Warehouse> {
                                   icon: Icon(FontAwesomeIcons.warehouse),
                                 ),
                               ),
+                              InputDropdown(
+                                value: groupValue,
+                                items: itemsGroup,
+                                onChanged: (value) => setState(() {
+                                  this.groupValue = value;
+                                }),
+                              ),
                               TextFormField(
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
@@ -126,6 +148,7 @@ class _WarehouseState extends State<Warehouse> {
                                             final warehouse = ModelWarehouse(
                                               name: name.text,
                                               address: address.text,
+                                              group: groupValue!.key,
                                               id: 'auto',
                                             );
 

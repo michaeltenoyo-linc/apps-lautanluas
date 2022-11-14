@@ -148,12 +148,14 @@ class Homepage extends StatelessWidget {
                           ),
                           HomepageFooterItem(
                             icon: Icon(
-                              FontAwesomeIcons.clock,
+                              FontAwesomeIcons.peopleGroup,
                               size: size.width * 0.035,
                               color: kDarkColor,
                             ),
-                            onTap: () {},
-                            text: "Timeline",
+                            onTap: () {
+                              this.dashboardNavigation('group');
+                            },
+                            text: "Groups",
                           ),
                           Container(
                             width: size.width * 0.2,

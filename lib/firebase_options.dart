@@ -66,7 +66,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '412032399318',
     projectId: 'lautan-luas-bulk',
     storageBucket: 'lautan-luas-bulk.appspot.com',
-    iosClientId: '412032399318-1r11m91347reqaggvsit204pqqgh4vo8.apps.googleusercontent.com',
+    iosClientId:
+        '412032399318-1r11m91347reqaggvsit204pqqgh4vo8.apps.googleusercontent.com',
     iosBundleId: 'com.example.ltlBulk',
   );
 
@@ -76,7 +77,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '412032399318',
     projectId: 'lautan-luas-bulk',
     storageBucket: 'lautan-luas-bulk.appspot.com',
-    iosClientId: '412032399318-1r11m91347reqaggvsit204pqqgh4vo8.apps.googleusercontent.com',
+    iosClientId:
+        '412032399318-1r11m91347reqaggvsit204pqqgh4vo8.apps.googleusercontent.com',
     iosBundleId: 'com.example.ltlBulk',
   );
 }
